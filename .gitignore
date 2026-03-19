@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+model_cache/
+auto_update.log
+*.backup_*
+backup_v3/
+.claude/
