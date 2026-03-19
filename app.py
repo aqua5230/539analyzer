@@ -136,7 +136,7 @@ footer { display: none !important; }
 
 /* === 文字 === */
 body, p, div, span, label { color: #333; font-size: 1rem; }
-h1,h2,h3,h4,h5 { color: #1a1a2e !important; font-weight: 900 !important; letter-spacing: -0.5px; }
+h1,h2,h3,h4,h5 { color: #1d1d1f !important; font-weight: 900 !important; letter-spacing: -0.5px; }
 
 /* === 球體動畫 === */
 @keyframes hl-orbit {
@@ -222,7 +222,7 @@ h1,h2,h3,h4,h5 { color: #1a1a2e !important; font-weight: 900 !important; letter-
     box-shadow: 0 8px 30px rgba(0,0,0,0.06);
 }
 [data-testid="stMetricLabel"] { color: #888 !important; font-size: 0.7rem !important; letter-spacing: 1px; font-weight: 700 !important; }
-[data-testid="stMetricValue"] { color: #1a1a2e !important; font-size: 1.8rem !important; font-weight: 900 !important; letter-spacing: -1px; }
+[data-testid="stMetricValue"] { color: #1d1d1f !important; font-size: 1.8rem !important; font-weight: 900 !important; letter-spacing: -1px; }
 
 /* === Expander === */
 [data-testid="stExpander"] {
@@ -499,7 +499,7 @@ st.markdown(f"""
   <div style='position:absolute;bottom:-15px;left:-15px;width:80px;height:80px;border-radius:50%;background:rgba(78,205,196,0.06)'></div>
   <div style='text-align:center;position:relative'>
     <div style='display:inline-block;background:rgba(78,205,196,0.1);color:#4ECDC4;font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:3px 14px;border-radius:99px;margin-bottom:10px'>已分析 {len(draws)} 期</div>
-    <div style='color:#1a1a2e;font-size:1.3rem;font-weight:900;letter-spacing:4px;margin-bottom:4px'>最新開獎號碼</div>
+    <div style='color:#1d1d1f;font-size:1.3rem;font-weight:900;letter-spacing:4px;margin-bottom:4px'>最新開獎號碼</div>
     <div style='color:#bbb;font-size:0.85rem;font-weight:600;margin-bottom:16px'>{latest.period}</div>
     <div style='display:flex;gap:12px;justify-content:center;flex-wrap:wrap'>
       {_latest_balls}
@@ -533,7 +533,7 @@ def _conf_ring_html(conf, is_best=False):
         "      background:conic-gradient(" + _color1 + " 0deg," + _color1 + " " + str(round(conf * 3.6)) + "deg,#f0f0f0 " + str(round(conf * 3.6)) + "deg,#f0f0f0 360deg);"
         "      -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px))'></div>"
         "    <div style='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"
-        "                color:#1a1a2e;font-size:" + _font_size + ";font-weight:900;text-align:center;line-height:1'>"
+        "                color:#1d1d1f;font-size:" + _font_size + ";font-weight:900;text-align:center;line-height:1'>"
         "      " + str(conf) + "<span style='font-size:0.55rem;color:#999'>%</span>"
         "    </div>"
         "  </div>"
@@ -759,7 +759,7 @@ st.markdown("""
 }
 .toolbox-title { display: flex; align-items: center; gap: 0.7rem; }
 .toolbox-icon { font-size: 1.3rem; }
-.toolbox-label { color: #1a1a2e; font-size: 1rem; font-weight: 900; letter-spacing: 1.5px; }
+.toolbox-label { color: #1d1d1f; font-size: 1rem; font-weight: 900; letter-spacing: 1.5px; }
 .toolbox-sub { color: #bbb; font-size: 0.68rem; margin-left: auto; letter-spacing: 1px; }
 </style>
 <div class='toolbox-header'>
@@ -823,7 +823,7 @@ with tab1:
         _cards_html += (
             "<div style='background:#fff;"
             "border:1px solid #eee;" + _in5 + ";border-radius:12px;padding:14px 12px;text-align:center'>"
-            "  <div style='font-size:1.3rem;font-weight:700;color:#1a1a2e;font-family:Inter,sans-serif'>" + f"{n:02d}" + "</div>"
+            "  <div style='font-size:1.3rem;font-weight:700;color:#1d1d1f;font-family:Inter,sans-serif'>" + f"{n:02d}" + "</div>"
             "  <div style='margin:6px 0'>"
             "    <div style='background:#f0f0f0;border-radius:3px;height:4px;overflow:hidden'>"
             "      <div style='height:100%;width:" + str(pct) + "%;background:linear-gradient(90deg,#4ECDC4,#26A69A);border-radius:3px'></div>"
@@ -872,7 +872,7 @@ with tab1:
   <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>
   <div style='text-align:center;margin-bottom:0.5rem'>
     <div style='font-size:1.4rem;margin-bottom:6px'>🎰</div>
-    <div style='color:#1a1a2e;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
+    <div style='color:#1d1d1f;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
     <div style='color:#999;font-size:0.72rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
   </div>
 </div>
@@ -987,7 +987,7 @@ with tab1:
                     "  <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>"
                     "  <div style='font-size:0.75rem;color:#999;letter-spacing:4px;margin-bottom:20px;font-weight:700'>歷 史 模 擬 中 獎 率</div>"
                     + _ring_html +
-                    "  <div style='font-size:1rem;color:#1a1a2e;font-weight:800;letter-spacing:1px'>" + _gauge_text + "</div>"
+                    "  <div style='font-size:1rem;color:#1d1d1f;font-weight:800;letter-spacing:1px'>" + _gauge_text + "</div>"
                     "  <div style='font-size:0.72rem;color:#999;margin-top:6px'>" + str(hit3) + " / " + str(len(draws)) + " 期命中 3 碼以上</div>"
                     "  <div style='display:flex;justify-content:center;gap:1rem;margin-top:1.5rem'>"
                     "    <div style='" + _hit5_glow + ";border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
@@ -995,11 +995,11 @@ with tab1:
                     "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>5碼全中</div>"
                     "    </div>"
                     "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:#1a1a2e'>" + str(hit4) + "</div>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:#1d1d1f'>" + str(hit4) + "</div>"
                     "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中4碼</div>"
                     "    </div>"
                     "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:#1a1a2e'>" + str(hit3) + "</div>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:#1d1d1f'>" + str(hit3) + "</div>"
                     "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中3碼</div>"
                     "    </div>"
                     "  </div>"
@@ -1755,11 +1755,11 @@ with tab6:
         def _color_hit(row):
             h = row["_hit"]
             if row["_pending"]:
-                return ["color:#6b7280"] * len(row)
-            if h == 5:   return ["background:rgba(107,124,90,0.3);color:#a3b18f;font-weight:700"] * len(row)
-            if h >= 3:   return ["background:rgba(107,124,90,0.2);color:#a3b18f"] * len(row)
-            if h >= 2:   return ["background:rgba(107,124,90,0.15);color:#8b9b7a"] * len(row)
-            return ["color:#9ca3af"] * len(row)
+                return ["color:#888"] * len(row)
+            if h == 5:   return ["background:rgba(78,205,196,0.2);color:#1d1d1f;font-weight:700"] * len(row)
+            if h >= 3:   return ["background:rgba(78,205,196,0.15);color:#333"] * len(row)
+            if h >= 2:   return ["background:rgba(78,205,196,0.08);color:#555"] * len(row)
+            return ["color:#888"] * len(row)
 
         show_cols = ["推薦時間","依據期數","推薦5碼","推薦7碼","實際開獎","5碼命中","7碼命中"]
         st.dataframe(
@@ -1772,7 +1772,7 @@ with tab6:
             fig_h = go.Figure(go.Bar(
                 x=[r["依據期數"] for r in hit_data[-20:]],
                 y=[r["5碼命中"] for r in hit_data[-20:]],
-                marker_color=["#4ade80" if r["5碼命中"] >= 3 else "#a08968" if r["5碼命中"] >= 2 else "#374151"
+                marker_color=["#4ade80" if r["5碼命中"] >= 3 else "#FF9671" if r["5碼命中"] >= 2 else "#c4c4c4"
                               for r in hit_data[-20:]],
                 text=[f"{r['5碼命中']}/5" for r in hit_data[-20:]],
                 textposition="outside",
@@ -1841,7 +1841,7 @@ with tab6:
       <div style='color:#FF6B6B;font-size:1.3rem;font-weight:800'>1 / {TOTAL_COMBOS:,}</div>
       <div style='color:#999;font-size:0.7rem'>{random_rate*100:.6f}%</div>
     </div>
-    <div style='color:#ddd;font-size:1.5rem'>→</div>
+    <div style='color:#ccc;font-size:1.5rem'>→</div>
     <div style='text-align:center'>
       <div style='color:#bbb;font-size:0.72rem;margin-bottom:4px'>模型實測（{n_wf}期）</div>
       <div style='color:{"#4ECDC4" if full_match > 0 else "#999"};font-size:1.3rem;font-weight:800'>
@@ -1877,10 +1877,10 @@ with tab6:
             with st.expander(f"查看回測明細（最近50期）"):
                 def _wf_color(row):
                     h = row["5碼命中"]
-                    if h == 5: return ["background:rgba(107,124,90,0.3);color:#a3b18f;font-weight:700"] * len(row)
-                    if h >= 3: return ["background:rgba(107,124,90,0.2);color:#a3b18f"] * len(row)
-                    if h >= 2: return ["background:rgba(107,124,90,0.15);color:#8b9b7a"] * len(row)
-                    return ["color:#9ca3af"] * len(row)
+                    if h == 5: return ["background:rgba(78,205,196,0.2);color:#1d1d1f;font-weight:700"] * len(row)
+                    if h >= 3: return ["background:rgba(78,205,196,0.15);color:#333"] * len(row)
+                    if h >= 2: return ["background:rgba(78,205,196,0.08);color:#555"] * len(row)
+                    return ["color:#888"] * len(row)
 
                 wf_df = pd.DataFrame([{
                     "期數": r["期數"],
