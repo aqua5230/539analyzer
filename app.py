@@ -54,7 +54,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
 [data-testid="stAppViewContainer"] { background: #f5f3ef !important; }
 [data-testid="stAppViewContainer"] > section { background: transparent !important; }
 [data-testid="stAppViewContainer"] > section > div { background: transparent !important; }
-.block-container { background: transparent !important; padding-top: 0.5rem !important; margin-top: 0 !important; }
+.block-container { background: transparent !important; padding-top: 0 !important; margin-top: 0 !important; }
 
 /* === 側邊欄（隱藏） === */
 [data-testid="stSidebar"] { display: none !important; }
@@ -70,7 +70,7 @@ footer { display: none !important; }
 .stDeployButton { display: none !important; }
 
 /* === 文字 === */
-body, p, div, span, label { color: #444; font-size: 0.9rem; }
+body, p, div, span, label { color: #333; font-size: 1rem; }
 h1,h2,h3,h4,h5 { color: #1a1a2e !important; font-weight: 900 !important; letter-spacing: -0.5px; }
 
 /* === 球體動畫 === */
@@ -209,24 +209,38 @@ div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
 
 /* === 手機 === */
 @media (max-width: 768px) {
-    .block-container { padding-left: 0.8rem !important; padding-right: 0.8rem !important; padding-top: 0.8rem !important; }
-    .block-container > div:first-child { margin-bottom: 0.3rem !important; }
-    .rec-card { padding: 0.8rem 1rem !important; border-radius: 12px !important; margin-bottom: 0.3rem !important; min-height: auto !important; height: auto !important; }
-    .b-r, .b-p, .b-b, .b-g { width: 2.2rem !important; height: 2.2rem !important; font-size: 0.8rem !important; }
-    div[data-baseweb="tab-list"] { gap: 1px !important; }
-    button[data-baseweb="tab"] { padding: 6px 10px !important; font-size: 0.72rem !important; }
+    .block-container { padding-left: 0.6rem !important; padding-right: 0.6rem !important; padding-top: 0 !important; }
+    body, p, div, span, label { font-size: 1rem !important; }
+    h4 { font-size: 1.15rem !important; }
+
+    /* 推薦卡片 — 橫排一行，球+信心並排 */
+    .rec-card {
+        padding: 1rem 1.2rem !important; border-radius: 14px !important;
+        margin-bottom: 0.5rem !important; min-height: auto !important; height: auto !important;
+        flex-direction: row !important; align-items: center !important;
+        gap: 1rem !important;
+    }
+    .rec-card > div { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 1rem !important; flex-wrap: wrap !important; }
+    .b-r, .b-p, .b-b, .b-g { width: 2.8rem !important; height: 2.8rem !important; font-size: 1rem !important; }
+
+    div[data-baseweb="tab-list"] { gap: 2px !important; }
+    button[data-baseweb="tab"] { padding: 8px 12px !important; font-size: 0.85rem !important; }
     div[style*="padding:1.8rem"] { padding: 1rem 0.8rem 0.8rem !important; }
     div[style*="min-width:120px"] { min-width: 80px !important; max-width: none !important; flex: 1 1 calc(33% - 8px) !important; padding: 10px 8px !important; }
     [data-testid="stDataFrame"] { overflow-x: auto !important; }
     [data-testid="stExpander"] { margin-top: 0.3rem !important; margin-bottom: 0.3rem !important; }
+    [data-testid="stExpander"] summary p { font-size: 1rem !important; }
     div[data-testid="stHorizontalBlock"] { gap: 0.4rem !important; }
-    h4 { font-size: 1rem !important; }
     div[style*="grid-template-columns"] { grid-template-columns: repeat(2, 1fr) !important; }
     div[style*="grid-template-columns"] > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
-    .trash-container, .toolbox-header { padding: 0.8rem !important; }
-    .trash-ball { width: 1.9rem !important; height: 1.9rem !important; margin: 3px !important; }
+    .trash-container, .toolbox-header { padding: 1rem !important; }
+    .trash-ball { width: 2.4rem !important; height: 2.4rem !important; margin: 4px !important; }
+    .trash-num { font-size: 0.9rem !important; }
     div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"] { margin-bottom: 0.3rem !important; }
-    [data-testid="stSidebar"] { min-width: 240px !important; max-width: 280px !important; }
+    .latest-ball { width: 3rem !important; height: 3rem !important; font-size: 1.15rem !important; }
+    [data-testid="stMetricValue"] { font-size: 1.5rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.75rem !important; }
+    [data-testid="stCaptionContainer"] { font-size: 0.85rem !important; }
 }
 
 /* === 小螢幕 === */
@@ -380,13 +394,13 @@ _conf5, _conf6, _conf7 = _conf(rec.top5), _conf(rec.top6), _conf(rec.top7)
 
 # ── 置中標題
 st.markdown('''
-<div style="text-align:center;padding:1.5rem 0 1.2rem;">
-  <div style='font-size:3.6rem;font-weight:900;letter-spacing:8px;text-align:center;line-height:1.1'>
+<div style="text-align:center;padding:0.5rem 0 0.8rem;">
+  <div style='font-size:3.2rem;font-weight:900;letter-spacing:8px;text-align:center;line-height:1.2'>
     <span style="color:#FF6B6B">今</span><span style="color:#4ECDC4">彩</span>
     <span style="color:#845EC2">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
   </div>
-  <div style='width:80px;height:4px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2);margin:16px auto 12px;border-radius:2px'></div>
-  <div style='font-size:0.9rem;font-weight:500;color:#aaa;letter-spacing:5px;text-align:center'>數據分析 · 智慧選號</div>
+  <div style='width:50px;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2);margin:8px auto 6px;border-radius:2px'></div>
+  <div style='font-size:0.82rem;font-weight:500;color:#aaa;letter-spacing:4px;text-align:center'>數據分析 · 智慧選號</div>
 </div>
 ''', unsafe_allow_html=True)
 
