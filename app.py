@@ -21,95 +21,47 @@ from markov_predict import get_markov_recommendation
 
 st.set_page_config(page_title="今彩539分析", page_icon="🎯", layout="wide")
 
-st.markdown('<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">', unsafe_allow_html=True)
+st.markdown('<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">', unsafe_allow_html=True)
 
 
 st.markdown("""
 <style>
-* { font-family: 'Noto Serif TC', 'Inter', -apple-system, serif !important; }
-/* 三欄等高 — 推薦區卡片 */
-div[data-testid="stHorizontalBlock"] {
-    align-items: stretch !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    display: flex !important;
-    flex-direction: column !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div > div[data-testid="stVerticalBlock"] {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div > div[data-testid="stVerticalBlock"] > div {
-    flex: 1 !important;
-}
-/* 推薦卡片內等高 — 用 JS 動態同步 */
+* { font-family: 'Noto Sans TC', 'Inter', -apple-system, sans-serif !important; }
+
+/* === 等高欄位 === */
+div[data-testid="stHorizontalBlock"] { align-items: stretch !important; }
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] { display:flex !important; flex-direction:column !important; }
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] { flex:1 !important; display:flex !important; flex-direction:column !important; }
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div { flex:1 !important; display:flex !important; flex-direction:column !important; }
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div > div[data-testid="stVerticalBlock"] { flex:1 !important; display:flex !important; flex-direction:column !important; }
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div > div[data-testid="stVerticalBlock"] > div { flex:1 !important; }
+
+/* === 推薦卡片 === */
 .rec-card {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    display:flex !important; flex-direction:column !important; justify-content:space-between !important;
+    transition: all 0.3s ease !important;
 }
 .rec-card:hover {
-    background: rgba(55,52,45,0.95) !important;
-    border-color: rgba(184,160,126,0.2) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1) !important;
 }
-/* 垃圾桶 hover */
-.trash-container {
-    transition: all 0.4s ease !important;
-}
-.trash-container:hover {
-    background: rgba(55,52,45,0.95) !important;
-    border-color: rgba(184,160,126,0.15) !important;
-}
-/* 工具箱 hover */
-.toolbox-header {
-    transition: all 0.4s ease !important;
-}
-.toolbox-header:hover {
-    background: rgba(55,52,45,0.95) !important;
-    border-color: rgba(184,160,126,0.15) !important;
-}
-/* 三欄等高 JS 注入 */
+.trash-container { transition: all 0.3s ease !important; }
+.trash-container:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important; }
+.toolbox-header { transition: all 0.3s ease !important; }
 
-/* ══ 侘寂 — 微呼吸動畫 ══ */
-@keyframes wabi-breathe { 0%,100%{opacity:0.4} 50%{opacity:0.6} }
-@keyframes ink-spread { 0%{opacity:0;transform:scale(0.95)} 100%{opacity:0.08;transform:scale(1)} }
-
-/* ══ 侘寂背景 ══ */
-.stApp {
-    background: 
-        radial-gradient(ellipse 120% 60% at 70% 40%, rgba(60,55,45,0.5) 0%, transparent 70%),
-        radial-gradient(ellipse 80% 80% at 20% 80%, rgba(50,45,38,0.35) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 85% 15%, rgba(65,58,45,0.25) 0%, transparent 50%),
-        linear-gradient(175deg, #2a2824 0%, #282622 25%, #2c2b27 50%, #272520 75%, #2a2824 100%);
-    background-color: #282622;
-}
-
-/* 讓各層容器透明，確保背景圖顯示 */
-[data-testid="stAppViewContainer"] { background: transparent !important; }
+/* === 背景 === */
+.stApp { background: #f5f3ef !important; }
+[data-testid="stAppViewContainer"] { background: #f5f3ef !important; }
 [data-testid="stAppViewContainer"] > section { background: transparent !important; }
 [data-testid="stAppViewContainer"] > section > div { background: transparent !important; }
-.block-container { background: transparent !important; padding-top: 1.5rem !important; margin-top: 0 !important; }
-[data-testid="stSidebar"] {
-    background: rgba(26,25,22,0.95);
-    border-right: 1px solid rgba(184,160,126,0.12);
-}
-[data-testid="stSidebar"] > div:first-child { padding-top: 1.4rem; }
+.block-container { background: transparent !important; padding-top: 0.5rem !important; margin-top: 0 !important; }
 
-/* ══ 隱藏 Streamlit 內建 UI ══ */
+/* === 側邊欄（隱藏） === */
+[data-testid="stSidebar"] { display: none !important; }
+section[data-testid="stSidebar"] { display: none !important; }
+button[kind="header"] { display: none !important; }
+
+/* === 隱藏 Streamlit UI === */
 [data-testid="collapsedControl"] { display: none !important; }
 #MainMenu { display: none !important; }
 header[data-testid="stHeader"] { display: none !important; }
@@ -117,17 +69,11 @@ footer { display: none !important; }
 [data-testid="stStatusWidget"] { display: none !important; }
 .stDeployButton { display: none !important; }
 
-/* ══ 信心分數條 ══ */
-.conf-track { height:2px;background:rgba(184,160,126,0.15);border-radius:1px;margin-top:10px; }
-.conf-fill-r { height:100%;border-radius:1px;background:linear-gradient(90deg,#8b6914,#b8a07e,#d4c5a9); }
-.conf-fill-p { height:100%;border-radius:1px;background:linear-gradient(90deg,#6b5c3e,#a89070,#c4b896); }
-.conf-fill-b { height:100%;border-radius:1px;background:linear-gradient(90deg,#5a6b5a,#7d8b6f,#a3b18f); }
+/* === 文字 === */
+body, p, div, span, label { color: #444; font-size: 0.9rem; }
+h1,h2,h3,h4,h5 { color: #1a1a2e !important; font-weight: 900 !important; letter-spacing: -0.5px; }
 
-/* ══ 文字 ══ */
-body, p, div, span, label { color: #555; font-size: 0.9rem; }
-h1,h2,h3,h4,h5 { color: #fff !important; font-weight: 900 !important; letter-spacing: -0.5px; }
-
-/* ══ 3D 球體動畫 ══ */
+/* === 球體動畫 === */
 @keyframes hl-orbit {
     0%   { top:10%; left:14%; }
     25%  { top:10%; left:52%; }
@@ -136,27 +82,11 @@ h1,h2,h3,h4,h5 { color: #fff !important; font-weight: 900 !important; letter-spa
     100% { top:10%; left:14%; }
 }
 @keyframes glow-pulse {
-    0%,100% { box-shadow:0 2px 8px rgba(184,160,126,0.15); }
-    50% { box-shadow:0 2px 12px rgba(184,160,126,0.25); }
+    0%,100% { box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+    50% { box-shadow:0 4px 16px rgba(0,0,0,0.12); }
 }
-@keyframes star-twinkle {/* disabled */
-    0%,100% { opacity:0.1; transform:scale(0.8) rotate(0deg); }
-    50% { opacity:0.7; transform:scale(1.2) rotate(180deg); }
-}
-@keyframes float-up {
-    0% { transform:translateY(0) scale(1); opacity:0.4; }
-    50% { opacity:0.7; }
-    100% { transform:translateY(-80px) scale(0.3); opacity:0; }
-}
-@keyframes spotlight-sweep {/* disabled */
-    0% { transform:translateX(-50%) rotate(-8deg); opacity:0.04; }
-    50% { transform:translateX(-50%) rotate(8deg); opacity:0.08; }
-    100% { transform:translateX(-50%) rotate(-8deg); opacity:0.04; }
-}
-@keyframes ring-expand {/* disabled */
-    0% { transform:scale(0.8); opacity:0.15; }
-    100% { transform:scale(1.6); opacity:0; }
-}
+
+/* === 球體樣式 === */
 .b-r,.b-p,.b-b,.b-g {
     border-radius: 50% !important;
     display: inline-flex !important;
@@ -166,334 +96,155 @@ h1,h2,h3,h4,h5 { color: #fff !important; font-weight: 900 !important; letter-spa
     position: relative !important;
     overflow: hidden !important;
     color: #fff !important;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.7) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
     cursor: default;
 }
 .b-r::before,.b-p::before,.b-b::before,.b-g::before {
     content: '';
     position: absolute;
-    width: 42%;
-    height: 42%;
+    width: 42%; height: 42%;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 60%, transparent 80%);
+    background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 60%, transparent 80%);
     filter: blur(2px);
     animation: hl-orbit 3s ease-in-out infinite;
     pointer-events: none;
 }
 .b-r {
-    background: radial-gradient(circle at 40% 35%, #c4956a 0%, #8b6543 50%, #5c3d28 100%);
-    box-shadow: 2px 4px 12px rgba(0,0,0,0.4), inset 0 -2px 6px rgba(0,0,0,0.3);
+    background: radial-gradient(circle at 35% 30%, #FF8A80 0%, #FF5252 40%, #D32F2F 100%);
+    box-shadow: 0 3px 10px rgba(211,47,47,0.3), inset 0 -2px 4px rgba(0,0,0,0.1);
 }
 .b-p {
-    background: radial-gradient(circle at 40% 35%, #9b917e 0%, #6b6358 50%, #3e3a34 100%);
-    box-shadow: 2px 4px 12px rgba(0,0,0,0.4), inset 0 -2px 6px rgba(0,0,0,0.3);
+    background: radial-gradient(circle at 35% 30%, #CE93D8 0%, #AB47BC 40%, #7B1FA2 100%);
+    box-shadow: 0 3px 10px rgba(123,31,162,0.3), inset 0 -2px 4px rgba(0,0,0,0.1);
 }
 .b-b {
-    background: radial-gradient(circle at 40% 35%, #8b9b7a 0%, #5c6b52 50%, #3a4434 100%);
-    box-shadow: 2px 4px 12px rgba(0,0,0,0.4), inset 0 -2px 6px rgba(0,0,0,0.3);
+    background: radial-gradient(circle at 35% 30%, #80CBC4 0%, #26A69A 40%, #00796B 100%);
+    box-shadow: 0 3px 10px rgba(0,121,107,0.3), inset 0 -2px 4px rgba(0,0,0,0.1);
 }
 .b-g {
-    background: radial-gradient(circle at 40% 35%, #8a8478 0%, #5e584e 50%, #36332c 100%);
-    box-shadow: 2px 4px 12px rgba(0,0,0,0.4), inset 0 -2px 6px rgba(0,0,0,0.3);
+    background: radial-gradient(circle at 35% 30%, #90CAF9 0%, #42A5F5 40%, #1565C0 100%);
+    box-shadow: 0 3px 10px rgba(21,101,192,0.3), inset 0 -2px 4px rgba(0,0,0,0.1);
 }
 
-/* ══ Tab ══ */
+/* === Tab === */
 [data-testid="stTabs"] [data-baseweb="tab-list"] {
-    gap: 2px; background: rgba(50,47,40,0.82); border-radius: 8px; padding: 4px;
-    border: 1px solid rgba(184,160,126,0.08);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    gap: 4px; background: #f5f5f5; border-radius: 12px; padding: 4px;
+    border: 1px solid #eee;
 }
 [data-testid="stTabs"] [data-baseweb="tab"] {
-    border-radius: 8px; padding: 8px 18px; font-size: 0.82rem;
-    font-weight: 600; color: #444; background: transparent; border: none;
+    border-radius: 10px; padding: 8px 18px; font-size: 0.82rem;
+    font-weight: 600; color: #888; background: transparent; border: none;
 }
 [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] {
-    background: rgba(184,160,126,0.15); color: #e8e0d4 !important;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #fff; color: #1a1a2e !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #eee;
 }
 
-/* ══ Metric ══ */
+/* === Metric === */
 [data-testid="stMetric"] {
-    background: rgba(48,45,38,0.85); border: 1px solid rgba(184,160,126,0.1);
-    border-top: none; border-radius: 12px;
-    padding: 1rem 1.2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    background: #fff; border: 1px solid #eee;
+    border-top: 3px solid; border-image: linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2) 1;
+    border-radius: 12px;
+    padding: 1rem 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-[data-testid="stMetricLabel"] { color: #444 !important; font-size: 0.7rem !important; letter-spacing: 1px; font-weight: 700 !important; }
-[data-testid="stMetricValue"] { color: #fff !important; font-size: 1.8rem !important; font-weight: 900 !important; letter-spacing: -1px; }
+[data-testid="stMetricLabel"] { color: #888 !important; font-size: 0.7rem !important; letter-spacing: 1px; font-weight: 700 !important; }
+[data-testid="stMetricValue"] { color: #1a1a2e !important; font-size: 1.8rem !important; font-weight: 900 !important; letter-spacing: -1px; }
 
-/* ══ Expander ══ */
+/* === Expander === */
 [data-testid="stExpander"] {
-    background: rgba(26,25,22,0.85); border: 1px solid rgba(184,160,126,0.08);
-    border-top: none; border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    background: #fff; border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-/* ══ Expander arrow icon 隱藏 ══ */
 details > summary::marker { display: none !important; }
 details > summary::-webkit-details-marker { display: none !important; }
-/* 隱藏 Material Icon span (stIconMaterial = _arr 箭頭來源) */
 [data-testid="stExpander"] summary [data-testid="stIconMaterial"] {
-    display: none !important;
-    visibility: hidden !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    font-size: 0 !important;
+    display: none !important; visibility: hidden !important;
+    width: 0 !important; height: 0 !important; overflow: hidden !important; font-size: 0 !important;
 }
-/* 確保 label 文字正常顯示 */
 [data-testid="stExpander"] summary p {
-    font-size: 0.9rem !important;
-    color: #aaa !important;
-    font-weight: 600 !important;
+    font-size: 0.9rem !important; color: #555 !important; font-weight: 600 !important;
 }
 
-/* ══ DataFrame ══ */
+/* === DataFrame === */
 [data-testid="stDataFrame"] {
-    border: 1px solid rgba(255,255,255,0.07); border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    border: 1px solid #eee; border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-/* ══ Input ══ */
+/* === Input === */
 [data-testid="stTextInput"] input {
-    background: rgba(26,25,22,0.9) !important; border: 1px solid rgba(184,160,126,0.15) !important;
-    border-radius: 10px !important; color: #fff !important; font-size: 0.9rem !important;
+    background: #f8f9fa !important; border: 1px solid #e0e0e0 !important;
+    border-radius: 10px !important; color: #333 !important; font-size: 0.9rem !important;
 }
 
-/* ══ Button ══ */
+/* === Button === */
 [data-testid="stButton"] button {
-    background: rgba(48,45,38,0.85); border: 1px solid rgba(184,160,126,0.1);
-    border-top: none; border-radius: 10px;
-    color: #ccc; font-weight: 700; font-size: 0.85rem;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    background: linear-gradient(135deg,#4ECDC4,#44B8AC); border: none;
+    border-radius: 10px;
+    color: #fff; font-weight: 700; font-size: 0.85rem;
+    box-shadow: 0 3px 12px rgba(78,205,196,0.3);
+    transition: all 0.3s ease;
+}
+[data-testid="stButton"] button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(78,205,196,0.4);
 }
 
-hr { border-color: rgba(255,255,255,0.05) !important; margin: 1.2rem 0; }
-[data-testid="stCaptionContainer"] { color: #333 !important; font-size: 0.78rem; }
-[data-testid="stAlert"] { border-radius: 8px; border: 1px solid rgba(184,160,126,0.1); }
+hr { border-color: #f0f0f0 !important; margin: 1.2rem 0; }
+[data-testid="stCaptionContainer"] { color: #999 !important; font-size: 0.78rem; }
+[data-testid="stAlert"] { border-radius: 10px; border: 1px solid #eee; }
 [data-testid="stRadio"] label { color: #555 !important; font-size: 0.85rem; }
 
-/* ══ 侘寂分隔線 ══ */
 .stMarkdown + .stMarkdown { margin-top: 0.3rem; }
 div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
 
-/* 墨痕分隔 */
-.wabi-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent 5%, rgba(184,160,126,0.15) 20%, rgba(184,160,126,0.25) 50%, rgba(184,160,126,0.15) 80%, transparent 95%);
-    margin: 1.5rem 0;
+/* === 平板 === */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .block-container { padding-left: 1.2rem !important; padding-right: 1.2rem !important; }
+    .b-r, .b-p, .b-b, .b-g { width: 2.4rem !important; height: 2.4rem !important; font-size: 0.9rem !important; }
+    button[data-baseweb="tab"] { padding: 6px 14px !important; font-size: 0.78rem !important; }
 }
 
-/* ══════════════════════════════════════
-   侘寂 — 手機版優化 (max-width: 768px)
-   ══════════════════════════════════════ */
+/* === 手機 === */
 @media (max-width: 768px) {
-    /* 整體間距收緊 */
-    .block-container {
-        padding-left: 0.8rem !important;
-        padding-right: 0.8rem !important;
-        padding-top: 0.8rem !important;
-    }
-
-    /* Logo 縮小 */
-    .block-container > div:first-child {
-        margin-bottom: 0.3rem !important;
-    }
-
-    /* 最新開獎號碼球 — 縮小適配 */
-    .gold-ball {
-        width: 2.8rem !important;
-        height: 2.8rem !important;
-        font-size: 1.1rem !important;
-    }
-
-    /* 推薦卡片 — 全寬堆疊，取消等高 */
-    .rec-card {
-        padding: 1rem !important;
-        border-radius: 10px !important;
-        margin-bottom: 0.5rem !important;
-        min-height: auto !important;
-        height: auto !important;
-    }
-
-    /* 推薦卡內的球 — 縮小 */
-    .rec-card .ball, .ball-r, .ball-p, .ball-b, .ball-g {
-        width: 2.2rem !important;
-        height: 2.2rem !important;
-        font-size: 0.8rem !important;
-    }
-
-    /* 信心指數環 — 縮小 */
-    .rec-card div[style*="width:80px"] {
-        width: 60px !important;
-        height: 60px !important;
-    }
-
-    /* 排除區號碼球 — 縮小間距 */
-    .trash-ball {
-        width: 2rem !important;
-        height: 2rem !important;
-        font-size: 0.7rem !important;
-    }
-
-    /* Tab 按鈕 — 更緊湊 */
-    div[data-baseweb="tab-list"] {
-        gap: 1px !important;
-    }
-    button[data-baseweb="tab"] {
-        padding: 6px 10px !important;
-        font-size: 0.72rem !important;
-    }
-
-    /* 對獎驗證區 — 縮小 */
-    div[style*="padding:1.8rem"] {
-        padding: 1rem 0.8rem 0.8rem !important;
-    }
-
-    /* 評分卡片 — 手機版兩欄 */
-    div[style*="min-width:120px"] {
-        min-width: 80px !important;
-        max-width: none !important;
-        flex: 1 1 calc(33% - 8px) !important;
-        padding: 10px 8px !important;
-    }
-    div[style*="min-width:120px"] div[style*="font-size:1.3rem"] {
-        font-size: 1.1rem !important;
-    }
-
-    /* 表格 — 允許水平滾動 */
-    [data-testid="stDataFrame"] {
-        overflow-x: auto !important;
-    }
-
-    /* expander — 緊湊 */
-    [data-testid="stExpander"] {
-        margin-top: 0.3rem !important;
-        margin-bottom: 0.3rem !important;
-    }
-
-    /* Streamlit 欄位堆疊時減少間距 */
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0.4rem !important;
-    }
-
-    /* h4 標題縮小 */
-    h4 {
-        font-size: 1rem !important;
-    }
-
-
-    /* 最新開獎號碼球 — 手機版一行五顆 */
-    div[style*="width:3.6rem"] {
-        width: 2.6rem !important;
-        height: 2.6rem !important;
-        font-size: 1rem !important;
-    }
-
-    /* 推薦卡內球 */
-    div[style*="width:2.6rem"][style*="height:2.6rem"][style*="border-radius:50%"] {
-        width: 2.2rem !important;
-        height: 2.2rem !important;
-        font-size: 0.85rem !important;
-    }
-
-    /* 推薦卡片間距 */
-    .rec-card {
-        margin-bottom: 0.3rem !important;
-        padding: 0.8rem 1rem !important;
-    }
-
-    /* 信心指數環 — 手機版稍小 */
-    div[style*="width:80px"][style*="height:80px"][style*="border-radius:50%"] {
-        width: 60px !important;
-        height: 60px !important;
-    }
-    div[style*="width:70px"][style*="height:70px"][style*="border-radius:50%"] {
-        width: 55px !important;
-        height: 55px !important;
-    }
-
-    /* 「為什麼推薦」卡片 — 手機版強制 2 欄，最後一個填滿整行 */
-    div[style*="grid-template-columns"] {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-    div[style*="grid-template-columns"] > div:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
-    }
-
-    /* 排除區和工具箱 — 收緊 padding */
-    .trash-container, .toolbox-header {
-        padding: 0.8rem !important;
-    }
-
-    /* 號碼排除區球更緊湊 */
-    .trash-ball {
-        width: 1.9rem !important;
-        height: 1.9rem !important;
-        margin: 3px !important;
-    }
-
-    /* 區塊間距收緊 */
-    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"] {
-        margin-bottom: 0.3rem !important;
-    }
-
-    /* 側邊欄手機版 — 更窄 */
-    [data-testid="stSidebar"] {
-        min-width: 240px !important;
-        max-width: 280px !important;
-    }
-
-    /* 隱藏不重要的裝飾文字 */
-    div[style*="letter-spacing:6px"] {
-        font-size: 1.3rem !important;
-        letter-spacing: 3px !important;
-    }
+    .block-container { padding-left: 0.8rem !important; padding-right: 0.8rem !important; padding-top: 0.8rem !important; }
+    .block-container > div:first-child { margin-bottom: 0.3rem !important; }
+    .rec-card { padding: 0.8rem 1rem !important; border-radius: 12px !important; margin-bottom: 0.3rem !important; min-height: auto !important; height: auto !important; }
+    .b-r, .b-p, .b-b, .b-g { width: 2.2rem !important; height: 2.2rem !important; font-size: 0.8rem !important; }
+    div[data-baseweb="tab-list"] { gap: 1px !important; }
+    button[data-baseweb="tab"] { padding: 6px 10px !important; font-size: 0.72rem !important; }
+    div[style*="padding:1.8rem"] { padding: 1rem 0.8rem 0.8rem !important; }
+    div[style*="min-width:120px"] { min-width: 80px !important; max-width: none !important; flex: 1 1 calc(33% - 8px) !important; padding: 10px 8px !important; }
+    [data-testid="stDataFrame"] { overflow-x: auto !important; }
+    [data-testid="stExpander"] { margin-top: 0.3rem !important; margin-bottom: 0.3rem !important; }
+    div[data-testid="stHorizontalBlock"] { gap: 0.4rem !important; }
+    h4 { font-size: 1rem !important; }
+    div[style*="grid-template-columns"] { grid-template-columns: repeat(2, 1fr) !important; }
+    div[style*="grid-template-columns"] > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .trash-container, .toolbox-header { padding: 0.8rem !important; }
+    .trash-ball { width: 1.9rem !important; height: 1.9rem !important; margin: 3px !important; }
+    div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"] { margin-bottom: 0.3rem !important; }
+    [data-testid="stSidebar"] { min-width: 240px !important; max-width: 280px !important; }
 }
 
-/* ══ 小螢幕進一步優化 (max-width: 480px) ══ */
+/* === 小螢幕 === */
 @media (max-width: 480px) {
-    .block-container {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
-    }
-
-    /* 評分卡片 — 小螢幕三欄 */
-    div[style*="min-width:120px"] {
-        flex: 1 1 calc(30% - 6px) !important;
-        padding: 8px 6px !important;
-    }
-
-    /* 排除區標題縮小 */
-    div[style*="font-size:1.1rem"] {
-        font-size: 0.9rem !important;
-    }
+    .block-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+    div[style*="min-width:120px"] { flex: 1 1 calc(30% - 6px) !important; padding: 8px 6px !important; }
 }
 
-
-/* 最新開獎球 — RWD */
+/* === 最新開獎球 RWD === */
 .latest-ball {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 3.6rem;
-    height: 3.6rem;
-    border-radius: 50%;
-    font-weight: 900;
-    font-size: 1.35rem;
+    display: inline-flex !important; align-items: center; justify-content: center;
+    width: 3.6rem; height: 3.6rem; border-radius: 50%; font-weight: 900; font-size: 1.35rem;
 }
 @media (max-width: 768px) {
-    .latest-ball {
-        width: 2.8rem !important;
-        height: 2.8rem !important;
-        font-size: 1.05rem !important;
-    }
+    .latest-ball { width: 2.8rem !important; height: 2.8rem !important; font-size: 1.05rem !important; }
 }
 @media (max-width: 480px) {
-    .latest-ball {
-        width: 2.5rem !important;
-        height: 2.5rem !important;
-        font-size: 0.95rem !important;
-    }
+    .latest-ball { width: 2.5rem !important; height: 2.5rem !important; font-size: 0.95rem !important; }
 }
 
 </style>
@@ -544,12 +295,12 @@ def calc_hit_prob(n_select: int) -> tuple[int, float]:
 
 
 def _dark_layout(title="", height=320, **kwargs):
-    """統一的深色 Plotly 佈局"""
+    """統一的 Plotly 佈局"""
     layout = dict(
         title=title,
-        plot_bgcolor="#0e1117",
-        paper_bgcolor="#0e1117",
-        font=dict(color="white"),
+        plot_bgcolor="#ffffff",
+        paper_bgcolor="#ffffff",
+        font=dict(color="#444"),
         height=height,
         margin=dict(t=50, b=20, l=40, r=20),
     )
@@ -560,53 +311,21 @@ def _dark_layout(title="", height=320, **kwargs):
 # ══════════════════════════════════════════
 # 側邊欄
 # ══════════════════════════════════════════
-with st.sidebar:
-    st.markdown("""
-<div style='text-align:center;padding:0.5rem 0 1rem'>
-  <div style='font-size:1.4rem;color:#b8a07e'>◆</div>
-  <div style='color:#e2e8f0;font-size:1rem;font-weight:700;letter-spacing:1px'>539 開獎小秘書</div>
-  <div style='color:#8a8070;font-size:0.72rem;margin-top:2px;letter-spacing:2px'>數據分析工具</div>
-</div>
-""", unsafe_allow_html=True)
-    draws = []
-
-    with st.expander("資料來源", expanded=True):
-        cached = Path("539_history.csv")
-        if cached.exists():
-            _tmp_draws = load_draws_from_csv(str(cached))
-            st.caption(f"已載入 {len(_tmp_draws)} 期 | 最新：{_tmp_draws[-1].period}")
-        data_source = st.radio("選擇來源", ["● 線上抓取（推薦）", "上傳 CSV", "示範資料"], label_visibility="collapsed")
-
-        if data_source == "● 線上抓取（推薦）":
-            if cached.exists():
-                draws = load_draws_from_csv(str(cached))
-            _col_pages, _col_all = st.columns(2)
-            with _col_pages:
-                pages = _col_pages.number_input("抓幾天份", 1, 253, 20)
-            with _col_all:
-                fetch_all = _col_all.checkbox("全部抓")
-            if st.button("抓取資料", type="primary", use_container_width=True):
-                from scraper import download_all
-                bar = st.progress(0)
-                def _p(c, t): bar.progress(c/t, text=f"{c}/{t} 頁")
-                n = download_all("539_history.csv", max_pages=None if fetch_all else int(pages), progress_callback=_p)
-                bar.empty()
-                st.success(f"✅ {n} 筆")
-                draws = load_draws_from_csv("539_history.csv")
-                # 清除快取讓推薦重算
-                for k in ["_rec", "_rec_key", "_bt_results", "_bt_key", "ml_result"]:
-                    st.session_state.pop(k, None)
-                st.rerun()
-        elif data_source == "上傳 CSV":
-            up = st.file_uploader("CSV", type=["csv"])
-            if up:
-                draws = load_draws_from_string(up.read().decode("utf-8-sig"))
-        else:
-            draws = load_draws_from_string(SAMPLE_DATA)
+# ── 自動載入資料（無側邊欄）──
+draws = []
+cached = Path("539_history.csv")
+if cached.exists():
+    draws = load_draws_from_csv(str(cached))
 
 if len(draws) < 10:
-    st.warning("請先在左側抓取資料。")
-    st.stop()
+    # 沒有快取時自動抓取
+    from scraper import download_all
+    with st.spinner("首次載入，正在抓取歷史資料..."):
+        download_all("539_history.csv", max_pages=20)
+    draws = load_draws_from_csv("539_history.csv")
+    if len(draws) < 10:
+        st.error("資料不足，請稍後重試。")
+        st.stop()
 
 # ── 快取 recommend()（資料不變就不重算）──────
 draws_key = f"{len(draws)}_{draws[-1].period}"
@@ -659,57 +378,34 @@ _max_s = max((v["總分"] for v in _sb.values()), default=1) or 1
 def _conf(nums): return round(sum(_sb.get(n,{}).get("總分",0) for n in nums) / (len(nums) * _max_s) * 100)
 _conf5, _conf6, _conf7 = _conf(rec.top5), _conf(rec.top6), _conf(rec.top7)
 
-# ── 浮動背景形狀
-st.markdown("""
-<div style='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden'>
-      </div>
-""", unsafe_allow_html=True)
-
 # ── 置中標題
-st.markdown(f'''
-<div style="text-align:center;padding:0 0 0.5rem;">
-  <div style='font-family:Noto Serif TC,serif;font-size:1.8rem;font-weight:700;color:#b8a07e;letter-spacing:6px;text-align:center'>今彩 539</div>
-
+st.markdown('''
+<div style="text-align:center;padding:0.8rem 0 1rem;">
+  <div style='font-size:2.6rem;font-weight:900;color:#1a1a2e;letter-spacing:6px;text-align:center'>
+    <span style="color:#FF6B6B">今</span><span style="color:#4ECDC4">彩</span>
+    <span style="color:#845EC2">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
+  </div>
+  <div style='width:60px;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2);margin:12px auto 10px;border-radius:2px'></div>
+  <div style='font-size:0.78rem;font-weight:500;color:#aaa;letter-spacing:4px;text-align:center'>數據分析 · 智慧選號</div>
 </div>
 ''', unsafe_allow_html=True)
 
 # ── 頂部：期數 + 上期號碼
+_ball_colors = ["#FF6B6B","#FF9671","#FFC75F","#4ECDC4","#845EC2"]
+_latest_balls = ""
+for _i, _n in enumerate(latest.numbers):
+    _bc = _ball_colors[_i % len(_ball_colors)]
+    _latest_balls += "<span class='latest-ball' style='display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:" + _bc + ";color:#fff;font-size:1.35rem;font-weight:900;box-shadow:0 4px 16px " + _bc + "40;border:2px solid rgba(255,255,255,0.8);text-shadow:0 1px 2px rgba(0,0,0,0.2)'>" + f"{_n:02d}" + "</span>"
+
 st.markdown(f"""
-<div style='position:relative;overflow:hidden;background:rgba(42,40,35,0.88);border:1px solid rgba(184,160,126,0.1);border-radius:20px;padding:2rem 2rem 1.8rem;margin-bottom:8px;
-            box-shadow:0 -4px 32px rgba(0,0,0,0.6)'>
-  <!-- 🌌 大面積漸層底色 -->
-  <div style='position:absolute;inset:0;background:
-    radial-gradient(ellipse 80% 60% at 50% 110%, rgba(184,160,126,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 80% at 10% 20%, rgba(139,92,246,0.05) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 80% at 90% 20%, rgba(59,130,246,0.05) 0%, transparent 50%);
-    pointer-events:none'></div>
-  <!-- 🔦 主聚光燈 -->
-  <div style='position:absolute;top:-80%;left:50%;transform:translateX(-50%);width:250%;height:250%;
-              background:radial-gradient(ellipse 35% 45% at 50% 0%, rgba(184,160,126,0.14) 0%, rgba(184,160,126,0.05) 25%, transparent 65%);
-              pointer-events:none;animation:spotlight-sweep 8s ease-in-out infinite'></div>
-  <!-- 中央大光暈 -->
-  <div style='position:absolute;top:40%;left:50%;transform:translate(-50%,-40%);width:400px;height:160px;
-              background:radial-gradient(ellipse at center, rgba(184,160,126,0.12) 0%, rgba(168,144,112,0.04) 40%, transparent 70%);
-              pointer-events:none;filter:blur(25px)'></div>
-  <!-- 左右寬光柱 -->
-  <div style='position:absolute;top:-30%;left:12%;width:60px;height:180%;
-              background:linear-gradient(180deg,rgba(184,160,126,0.06),transparent 40%);
-              transform:rotate(-15deg);pointer-events:none;filter:blur(15px)'></div>
-  <div style='position:absolute;top:-30%;right:12%;width:60px;height:180%;
-              background:linear-gradient(180deg,rgba(184,160,126,0.06),transparent 40%);
-              transform:rotate(15deg);pointer-events:none;filter:blur(15px)'></div>
-  <!-- 細光線 -->
-  <!-- 擴散光環 x3 -->
-  <!-- 浮動光粒子 (8個) -->
-  <!-- 角落裝飾已移除（Apple 簡潔風） -->
-  <!-- 底部雙金線 -->
-  <!-- 主內容 -->
-  <div style='position:relative;text-align:center;z-index:1'>
-    <div style='color:#9a9a9a;font-size:0.68rem;font-weight:700;letter-spacing:2px;margin-bottom:8px'>已分析 {len(draws)} 期資料</div>
-    <div style='color:#b8a07e;font-size:1.3rem;font-weight:900;letter-spacing:1px;margin-bottom:6px'>最新開獎號碼</div>
-    <div style='color:#a1a1aa;font-size:0.85rem;font-weight:600;margin-bottom:16px'>{latest.period}</div>
+<div style='background:#fff;border:1px solid #eee;border-radius:20px;padding:2rem 2rem 1.8rem;margin-bottom:8px;
+            box-shadow:0 4px 20px rgba(0,0,0,0.04)'>
+  <div style='text-align:center'>
+    <div style='color:#bbb;font-size:0.68rem;font-weight:700;letter-spacing:2px;margin-bottom:8px'>已分析 {len(draws)} 期資料</div>
+    <div style='color:#1a1a2e;font-size:1.2rem;font-weight:700;letter-spacing:4px;margin-bottom:6px'>最新開獎號碼</div>
+    <div style='color:#999;font-size:0.85rem;font-weight:600;margin-bottom:16px'>{latest.period}</div>
     <div style='display:flex;gap:12px;justify-content:center;flex-wrap:wrap'>
-      {"".join(f"<span class='latest-ball' style='display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(145deg,#b8a07e,#a08968,#d97706);color:#000;font-size:1.35rem;font-weight:900;box-shadow:0 0 20px rgba(184,160,126,0.5),0 0 40px rgba(184,160,126,0.2),inset 0 -3px 6px rgba(0,0,0,0.2);border:2px solid rgba(255,255,255,0.3);text-shadow:0 1px 2px rgba(0,0,0,0.2);animation:glow-pulse 2s ease-in-out infinite alternate'>{n:02d}</span>" for n in latest.numbers)}
+      {_latest_balls}
     </div>
   </div>
 </div>
@@ -722,36 +418,31 @@ _best_conf = max(_conf5, _conf6, _conf7)
 _ring_counter = [0]
 def _conf_ring_html(conf, is_best=False):
     _ring_counter[0] += 1
-    _uid = "ring" + str(_ring_counter[0])
     if conf >= 70:
-        _desc = "· 推薦"
-        _color1 = "#a08968"
+        _desc = "推薦"
+        _color1 = "#4ECDC4"
     elif conf >= 50:
         _desc = "⚡ 值得一試"
-        _color1 = "#3b82f6"
+        _color1 = "#FF9671"
     else:
         _desc = "❄️ 謹慎參考"
-        _color1 = "#6b7280"
+        _color1 = "#C4C4C4"
     _ring_size = "90px" if is_best else "70px"
     _font_size = "1.4rem" if is_best else "1rem"
-    _pct = conf / 100
-    _dash = round(_pct * 263.9, 1)
-    _glow = "" if is_best else ""
-    # 用 CSS conic-gradient 圓環代替 SVG（避免 Streamlit SVG 渲染問題）
     return (
         "<div style='display:flex;align-items:center;gap:12px;margin-top:12px'>"
-        "  <div style='position:relative;width:" + _ring_size + ";height:" + _ring_size + ";flex-shrink:0;" + _glow + "'>"
+        "  <div style='position:relative;width:" + _ring_size + ";height:" + _ring_size + ";flex-shrink:0'>"
         "    <div style='width:100%;height:100%;border-radius:50%;"
-        "      background:conic-gradient(" + _color1 + " 0deg," + _color1 + " " + str(round(conf * 3.6)) + "deg,#1a1a2e " + str(round(conf * 3.6)) + "deg,#1a1a2e 360deg);"
+        "      background:conic-gradient(" + _color1 + " 0deg," + _color1 + " " + str(round(conf * 3.6)) + "deg,#f0f0f0 " + str(round(conf * 3.6)) + "deg,#f0f0f0 360deg);"
         "      -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px))'></div>"
         "    <div style='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"
-        "                color:#fff;font-size:" + _font_size + ";font-weight:900;text-align:center;line-height:1'>"
-        "      " + str(conf) + "<span style='font-size:0.55rem;color:#888'>%</span>"
+        "                color:#1a1a2e;font-size:" + _font_size + ";font-weight:900;text-align:center;line-height:1'>"
+        "      " + str(conf) + "<span style='font-size:0.55rem;color:#999'>%</span>"
         "    </div>"
         "  </div>"
         "  <div>"
-        "    <div style='color:#ccc;font-size:0.72rem;font-weight:600;letter-spacing:1px'>信心指數</div>"
-        "    <div style='color:#888;font-size:0.62rem;margin-top:2px'>" + _desc + "</div>"
+        "    <div style='color:#555;font-size:0.72rem;font-weight:600;letter-spacing:1px'>信心指數</div>"
+        "    <div style='color:#999;font-size:0.62rem;margin-top:2px'>" + _desc + "</div>"
         "  </div>"
         "</div>"
     )
@@ -760,23 +451,21 @@ _c5, _c6, _c7 = st.columns(3)
 with _c5:
     _is_best5 = (_best_conf == _conf5)
     if _is_best5:
-        _border5 = "border:1px solid rgba(184,160,126,0.2);box-shadow:0 4px 16px rgba(0,0,0,0.2)"
-        _crown5 = "<div style='text-align:center;font-size:1.5rem;margin-bottom:6px'>◈</div>"
-        _badge5 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#b8a07e,#8b7355);color:#000;font-size:0.6rem;font-weight:900;padding:2px 10px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
+        _border5 = "border:2px solid #FF6B6B;box-shadow:0 4px 20px rgba(255,107,107,0.12)"
+        _crown5 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px'>🏆</div>"
+        _badge5 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#FF6B6B,#FF9671);color:#fff;font-size:0.6rem;font-weight:900;padding:3px 12px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
     else:
-        _border5 = "border:1px solid rgba(184,160,126,0.1)"
-        _crown5 = "<div style='text-align:center;font-size:1.6rem;margin-bottom:4px;opacity:0'>◈</div>"
-        _badge5 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:2px 10px'>首選</span></div>"
+        _border5 = "border:1px solid #eee"
+        _crown5 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px;opacity:0'>🏆</div>"
+        _badge5 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:3px 12px'>首選</span></div>"
     _ball5_size = "3.2rem" if _is_best5 else "2.8rem"
     _ball5_font = "1.1rem" if _is_best5 else "1rem"
     _balls5_html = "".join("<span class='b-r' style='width:" + _ball5_size + ";height:" + _ball5_size + ";font-size:" + _ball5_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top5)
     _ring5_html = _conf_ring_html(_conf5, _is_best5)
-    _glow5_html = "<div style='position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at top,rgba(184,160,126,0.06),transparent 70%);pointer-events:none'></div>" if _is_best5 else ""
-    _html5 = ("<div class='rec-card' style='background:rgba(48,45,38,0.88);" + _border5 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
-        + _glow5_html
+    _html5 = ("<div class='rec-card' style='background:#fff;" + _border5 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + "<div style='position:relative;z-index:1'>"
         + _crown5
-        + "<div style='color:#555;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:10px;text-align:center'>五號中獎王（Pick 5）</div>"
+        + "<div style='color:#888;font-size:0.68rem;font-weight:600;letter-spacing:2px;margin-bottom:10px;text-align:center'>五號中獎王（Pick 5）</div>"
         + "<div style='display:flex;gap:8px;flex-wrap:wrap;justify-content:center'>" + _balls5_html + "</div>"
         + _ring5_html + _badge5
         + "</div></div>")
@@ -784,23 +473,21 @@ with _c5:
 with _c6:
     _is_best6 = (_best_conf == _conf6 and not (_best_conf == _conf5))
     if _is_best6:
-        _border6 = "border:1px solid rgba(184,160,126,0.2);box-shadow:0 4px 16px rgba(0,0,0,0.2)"
-        _crown6 = "<div style='text-align:center;font-size:1.5rem;margin-bottom:6px'>◈</div>"
-        _badge6 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#b8a07e,#8b7355);color:#000;font-size:0.6rem;font-weight:900;padding:2px 10px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
+        _border6 = "border:2px solid #845EC2;box-shadow:0 4px 20px rgba(132,94,194,0.12)"
+        _crown6 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px'>🏆</div>"
+        _badge6 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#845EC2,#B39CD0);color:#fff;font-size:0.6rem;font-weight:900;padding:3px 12px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
     else:
-        _border6 = "border:1px solid rgba(184,160,126,0.1)"
-        _crown6 = "<div style='text-align:center;font-size:1.6rem;margin-bottom:4px;opacity:0'>◈</div>"
-        _badge6 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:2px 10px'>首選</span></div>"
+        _border6 = "border:1px solid #eee"
+        _crown6 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px;opacity:0'>🏆</div>"
+        _badge6 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:3px 12px'>首選</span></div>"
     _ball6_size = "3.2rem" if _is_best6 else "2.6rem"
     _ball6_font = "1.1rem" if _is_best6 else "0.95rem"
     _balls6_html = "".join("<span class='b-p' style='width:" + _ball6_size + ";height:" + _ball6_size + ";font-size:" + _ball6_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top6)
     _ring6_html = _conf_ring_html(_conf6, _is_best6)
-    _glow6_html = "<div style='position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at top,rgba(184,160,126,0.06),transparent 70%);pointer-events:none'></div>" if _is_best6 else ""
-    _html6 = ("<div class='rec-card' style='background:rgba(48,45,38,0.88);" + _border6 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
-        + _glow6_html
+    _html6 = ("<div class='rec-card' style='background:#fff;" + _border6 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + "<div style='position:relative;z-index:1'>"
         + _crown6
-        + "<div style='color:#555;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:10px;text-align:center'>六六大順組（Pick 6）</div>"
+        + "<div style='color:#888;font-size:0.68rem;font-weight:600;letter-spacing:2px;margin-bottom:10px;text-align:center'>六六大順組（Pick 6）</div>"
         + "<div style='display:flex;gap:8px;flex-wrap:wrap;justify-content:center'>" + _balls6_html + "</div>"
         + _ring6_html + _badge6
         + "</div></div>")
@@ -808,23 +495,21 @@ with _c6:
 with _c7:
     _is_best7 = (_best_conf == _conf7 and not (_best_conf == _conf5) and not (_best_conf == _conf6))
     if _is_best7:
-        _border7 = "border:1px solid rgba(184,160,126,0.2);box-shadow:0 4px 16px rgba(0,0,0,0.2)"
-        _crown7 = "<div style='text-align:center;font-size:1.5rem;margin-bottom:6px'>◈</div>"
-        _badge7 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#b8a07e,#8b7355);color:#000;font-size:0.6rem;font-weight:900;padding:2px 10px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
+        _border7 = "border:2px solid #4ECDC4;box-shadow:0 4px 20px rgba(78,205,196,0.12)"
+        _crown7 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px'>🏆</div>"
+        _badge7 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#4ECDC4,#26A69A);color:#fff;font-size:0.6rem;font-weight:900;padding:3px 12px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
     else:
-        _border7 = "border:1px solid rgba(184,160,126,0.1)"
-        _crown7 = "<div style='text-align:center;font-size:1.6rem;margin-bottom:4px;opacity:0'>◈</div>"
-        _badge7 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:2px 10px'>首選</span></div>"
+        _border7 = "border:1px solid #eee"
+        _crown7 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px;opacity:0'>🏆</div>"
+        _badge7 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:3px 12px'>首選</span></div>"
     _ball7_size = "3.2rem" if _is_best7 else "2.6rem"
     _ball7_font = "1.1rem" if _is_best7 else "0.95rem"
     _balls7_html = "".join("<span class='b-b' style='width:" + _ball7_size + ";height:" + _ball7_size + ";font-size:" + _ball7_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top7)
     _ring7_html = _conf_ring_html(_conf7, _is_best7)
-    _glow7_html = "<div style='position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at top,rgba(184,160,126,0.06),transparent 70%);pointer-events:none'></div>" if _is_best7 else ""
-    _html7 = ("<div class='rec-card' style='background:rgba(48,45,38,0.88);" + _border7 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
-        + _glow7_html
+    _html7 = ("<div class='rec-card' style='background:#fff;" + _border7 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + "<div style='position:relative;z-index:1'>"
         + _crown7
-        + "<div style='color:#555;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:10px;text-align:center'>七星連珠組（Pick 7）</div>"
+        + "<div style='color:#888;font-size:0.68rem;font-weight:600;letter-spacing:2px;margin-bottom:10px;text-align:center'>七星連珠組（Pick 7）</div>"
         + "<div style='display:flex;gap:8px;flex-wrap:wrap;justify-content:center'>" + _balls7_html + "</div>"
         + _ring7_html + _badge7
         + "</div></div>")
@@ -874,23 +559,21 @@ for n in killed_list:
 _trash_balls = ""
 for n in killed_list:
     _reason_html = "<br>".join(killed_reasons[n])
-    _trash_balls += f"<div class='trash-ball'><span class='trash-num'>{n:02d}</span><div class='trash-tooltip'><div style='font-weight:700;margin-bottom:6px;color:#8b6543'>號碼 {n:02d} 被排除</div><div style='font-size:0.75rem;line-height:1.6'>{_reason_html}</div></div></div>"
+    _trash_balls += f"<div class='trash-ball'><span class='trash-num'>{n:02d}</span><div class='trash-tooltip'><div style='font-weight:700;margin-bottom:6px;color:#FF6B6B'>號碼 {n:02d} 被排除</div><div style='font-size:0.75rem;line-height:1.6'>{_reason_html}</div></div></div>"
 
 st.markdown(f"""
 <style>
 .trash-container {{
-  background: rgba(42,40,35,0.88);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 20px;
   padding: 1.2rem 1.4rem;
   margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }}
 .trash-header {{
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.8rem;
-  cursor: default;
+  display: flex; align-items: center; gap: 0.6rem;
+  margin-bottom: 0.8rem; cursor: default;
 }}
 .trash-icon {{
   font-size: 1.4rem;
@@ -901,72 +584,41 @@ st.markdown(f"""
   25% {{ transform: rotate(-8deg); }}
   75% {{ transform: rotate(8deg); }}
 }}
-.trash-grid {{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}}
+.trash-grid {{ display: flex; flex-wrap: wrap; gap: 8px; }}
 .trash-ball {{
-  position: relative;
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3e3a34, #2a2724);
-  border: 1px solid rgba(184,160,126,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  position: relative; width: 2.6rem; height: 2.6rem; border-radius: 50%;
+  background: #f5f5f5; border: 1px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.3s ease;
 }}
 .trash-ball:hover {{
   transform: scale(1.2);
-  border-color: rgba(184,160,126,0.5);
-  box-shadow: 0 2px 8px rgba(184,160,126,0.15);
+  border-color: #FF6B6B;
+  background: #FFF5F5;
+  box-shadow: 0 4px 12px rgba(255,107,107,0.15);
 }}
 .trash-num {{
-  color: #9ca3af;
-  font-size: 0.82rem;
-  font-weight: 700;
-  pointer-events: none;
+  color: #888; font-size: 0.82rem; font-weight: 700; pointer-events: none;
 }}
-.trash-ball:hover .trash-num {{
-  color: #fca5a5;
-}}
+.trash-ball:hover .trash-num {{ color: #FF6B6B; }}
 .trash-tooltip {{
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(50,47,40,0.97);
-  border: 1px solid rgba(184,160,126,0.2);
-  border-radius: 10px;
-  padding: 10px 14px;
-  min-width: 200px;
-  z-index: 1000;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-  color: #d1d5db;
+  display: none; position: absolute; bottom: calc(100% + 10px);
+  left: 50%; transform: translateX(-50%);
+  background: #fff; border: 1px solid #eee;
+  border-radius: 12px; padding: 10px 14px; min-width: 200px;
+  z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.1); color: #555;
 }}
 .trash-tooltip::after {{
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: rgba(184,160,126,0.2);
+  content: ''; position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent; border-top-color: #eee;
 }}
-.trash-ball:hover .trash-tooltip {{
-  display: block;
-}}
+.trash-ball:hover .trash-tooltip {{ display: block; }}
 </style>
 <div class='trash-container'>
   <div class='trash-header'>
     <span class='trash-icon'>✕</span>
-    <span style='color:#8b6543;font-size:0.75rem;font-weight:700;letter-spacing:2px'>號碼排除區</span>
-    <span style='color:#555;font-size:0.68rem'>（懸停查看排除原因）</span>
+    <span style='color:#FF6B6B;font-size:0.75rem;font-weight:700;letter-spacing:2px'>號碼排除區</span>
+    <span style='color:#bbb;font-size:0.68rem'>（懸停查看排除原因）</span>
   </div>
   <div class='trash-grid'>
     {_trash_balls}
@@ -977,92 +629,39 @@ st.markdown(f"""
 if ml_badge:
     st.markdown(f"""
 <div style='margin-top:-0.5rem;margin-bottom:1rem;padding:0.6rem 1.2rem;
-     background:rgba(184,160,126,0.06);border:1px solid rgba(184,160,126,0.15);
-     border-radius:10px;font-size:0.85rem'>
+     background:#FFFBF0;border:1px solid #FFE0B2;
+     border-radius:12px;font-size:0.85rem'>
   {ml_badge}
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("""
 <style>
-@keyframes toolbox-open {
-  0% { transform: perspective(800px) rotateX(-15deg); opacity: 0.7; }
-  100% { transform: perspective(800px) rotateX(0deg); opacity: 1; }
-}
 .toolbox-header {
-  background: rgba(42,40,35,0.88);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #fff;
+  border: 1px solid #eee;
   border-bottom: none;
   border-radius: 20px 20px 0 0;
   padding: 1rem 1.4rem;
   margin-top: 8px;
-  animation: toolbox-open 0.6s ease-out;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.02);
 }
 .toolbox-header::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(184,160,126,0.4), transparent);
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #845EC2, #FFC75F);
 }
-.toolbox-title {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-}
-.toolbox-icon {
-  font-size: 1.3rem;
-  animation: wrench-turn 3s ease-in-out infinite;
-}
-@keyframes wrench-turn {
-  0%,100% { transform: rotate(0deg); }
-  25% { transform: rotate(-15deg); }
-  50% { transform: rotate(15deg); }
-  75% { transform: rotate(-5deg); }
-}
-.toolbox-label {
-  color: #a08968;
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: 1.5px;
-}
-.toolbox-sub {
-  color: #555;
-  font-size: 0.68rem;
-  margin-left: auto;
-  letter-spacing: 1px;
-}
-/* 3D 工具按鈕 */
-div[data-testid="stTabs"] button[data-baseweb="tab"] {
-  background: linear-gradient(180deg, rgba(30,30,45,0.95), rgba(18,18,28,0.95)) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  border-radius: 12px !important;
-  margin: 0 4px !important;
-  padding: 0.6rem 1rem !important;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05) !important;
-  transform: perspective(800px) rotateX(0deg) !important;
-}
-div[data-testid="stTabs"] button[data-baseweb="tab"]:hover {
-  background: linear-gradient(180deg, rgba(40,35,55,0.95), rgba(25,22,38,0.95)) !important;
-  border-color: rgba(184,160,126,0.4) !important;
-  transform: perspective(800px) rotateX(-5deg) translateY(-4px) !important;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4), 0 0 15px rgba(184,160,126,0.15), inset 0 1px 0 rgba(255,255,255,0.1) !important;
-}
-div[data-testid="stTabs"] button[aria-selected="true"] {
-  background: linear-gradient(135deg, rgba(184,160,126,0.18), rgba(168,144,112,0.1)) !important;
-  border-color: rgba(184,160,126,0.6) !important;
-  box-shadow: 0 0 20px rgba(184,160,126,0.2), 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(184,160,126,0.2) !important;
-  transform: perspective(800px) rotateX(0deg) translateY(-2px) !important;
-}
+.toolbox-title { display: flex; align-items: center; gap: 0.7rem; }
+.toolbox-icon { font-size: 1.3rem; }
+.toolbox-label { color: #1a1a2e; font-size: 1rem; font-weight: 900; letter-spacing: 1.5px; }
+.toolbox-sub { color: #bbb; font-size: 0.68rem; margin-left: auto; letter-spacing: 1px; }
 </style>
 <div class='toolbox-header'>
   <div class='toolbox-title'>
-    <span class='toolbox-icon'></span>
+    <span class='toolbox-icon'>🧰</span>
     <span class='toolbox-label'>分析工具</span>
     <span class='toolbox-sub'>v5</span>
   </div>
@@ -1107,26 +706,26 @@ with tab1:
         _top_dims = [(k, v) for k, v in _top_dims if v > 0]
 
         # 標記是否在 top5
-        _in5 = "border-color:rgba(184,160,126,0.3)" if n in rec.top5 else "border-color:rgba(184,160,126,0.12)"
+        _in5 = "border-color:#4ECDC4" if n in rec.top5 else "border-color:#eee"
 
         # 生成得分亮點標籤
         _tags = ""
         for dk, dv in _top_dims:
             label, tip = _dim_labels[dk]
-            _tags += "<span style='display:inline-block;padding:2px 8px;margin:2px;font-size:0.7rem;background:rgba(184,160,126,0.1);border:1px solid rgba(184,160,126,0.15);border-radius:4px;color:#a89070'>" + label + "</span>"
+            _tags += "<span style='display:inline-block;padding:2px 8px;margin:2px;font-size:0.7rem;background:#f0f9f8;border:1px solid #d4efed;border-radius:4px;color:#4ECDC4'>" + label + "</span>"
 
         if not _tags:
-            _tags = "<span style='font-size:0.7rem;color:#8a8070'>基礎分</span>"
+            _tags = "<span style='font-size:0.7rem;color:#ccc'>基礎分</span>"
 
         _cards_html += (
-            "<div style='background:rgba(48,45,38,0.85);"
-            "border:1px solid rgba(184,160,126,0.12);" + _in5 + ";border-radius:10px;padding:14px 12px;text-align:center'>"
-            "  <div style='font-size:1.3rem;font-weight:700;color:#e8e0d4;font-family:Inter,sans-serif'>" + f"{n:02d}" + "</div>"
+            "<div style='background:#fff;"
+            "border:1px solid #eee;" + _in5 + ";border-radius:12px;padding:14px 12px;text-align:center'>"
+            "  <div style='font-size:1.3rem;font-weight:700;color:#1a1a2e;font-family:Inter,sans-serif'>" + f"{n:02d}" + "</div>"
             "  <div style='margin:6px 0'>"
-            "    <div style='background:rgba(184,160,126,0.1);border-radius:3px;height:4px;overflow:hidden'>"
-            "      <div style='height:100%;width:" + str(pct) + "%;background:rgba(184,160,126,0.5);border-radius:3px'></div>"
+            "    <div style='background:#f0f0f0;border-radius:3px;height:4px;overflow:hidden'>"
+            "      <div style='height:100%;width:" + str(pct) + "%;background:linear-gradient(90deg,#4ECDC4,#26A69A);border-radius:3px'></div>"
             "    </div>"
-            "    <div style='font-size:0.65rem;color:#8b7355;margin-top:3px'>" + f"{total:.1f}" + " 分</div>"
+            "    <div style='font-size:0.65rem;color:#999;margin-top:3px'>" + f"{total:.1f}" + " 分</div>"
             "  </div>"
             "  <div style='margin-top:6px'>" + _tags + "</div>"
             "</div>"
@@ -1165,19 +764,13 @@ with tab1:
 
     # ══ 對獎驗證 ══
     st.markdown("""
-<div style='position:relative;overflow:hidden;background:linear-gradient(135deg, rgba(28,27,24,0.95), rgba(55,52,45,0.95));
-     border:1px solid rgba(184,160,126,0.15);border-radius:12px;padding:1.8rem 1.5rem 1.2rem;margin:1rem 0;
-     box-shadow:0 4px 16px rgba(0,0,0,0.3)'>
-  <!-- 機台頂部燈條 -->
-  <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(184,160,126,0.25),transparent)'></div>
-  <!-- 側邊裝飾燈 -->
-              <!-- 背景光暈 -->
-  <div style='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;
-              background:radial-gradient(circle,rgba(184,160,126,0.06),transparent 70%);pointer-events:none'></div>
-  <div style='position:relative;text-align:center;margin-bottom:0.5rem'>
-    <div style='font-size:1.4rem;margin-bottom:6px;color:#b8a07e'>⊞</div>
-    <div style='color:#b8a07e;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
-    <div style='color:#666;font-size:0.72rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
+<div style='background:#fff;border:1px solid #eee;border-radius:16px;padding:1.8rem 1.5rem 1.2rem;margin:1rem 0;
+     box-shadow:0 2px 8px rgba(0,0,0,0.04);position:relative;overflow:hidden'>
+  <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>
+  <div style='text-align:center;margin-bottom:0.5rem'>
+    <div style='font-size:1.4rem;margin-bottom:6px'>🎰</div>
+    <div style='color:#1a1a2e;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
+    <div style='color:#999;font-size:0.72rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1212,16 +805,16 @@ with tab1:
                     _progress = round((_frame + 1) / _total_frames * 100)
                     _scan_period = round((_frame + 1) / _total_frames * len(draws))
                     _slot_ph.markdown(f"""
-<div style='text-align:center;padding:1.2rem;background:rgba(48,45,38,0.6);
-            border-radius:16px;margin:0.5rem 0;border:1px solid rgba(184,160,126,0.15)'>
+<div style='text-align:center;padding:1.2rem;background:#f8f9fa;
+            border-radius:16px;margin:0.5rem 0;border:1px solid #eee'>
   <div style='display:flex;justify-content:center;gap:14px'>
-    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,#8b7355,#6b5c3e);align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#000;box-shadow:0 4px 16px rgba(184,160,126,0.4)'>{n:02d}</span>" for n in _rand_nums)}
+    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,#4ECDC4,#26A69A);align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;box-shadow:0 4px 12px rgba(78,205,196,0.3)'>{n:02d}</span>" for n in _rand_nums)}
   </div>
   <div style='margin-top:12px'>
-    <div style='background:rgba(255,255,255,0.06);border-radius:99px;height:6px;overflow:hidden;width:60%;margin:0 auto'>
-      <div style='height:100%;width:{_progress}%;background:linear-gradient(90deg,#8b7355,#a08968);border-radius:99px;transition:width 0.1s'></div>
+    <div style='background:#e0e0e0;border-radius:99px;height:6px;overflow:hidden;width:60%;margin:0 auto'>
+      <div style='height:100%;width:{_progress}%;background:linear-gradient(90deg,#4ECDC4,#26A69A);border-radius:99px;transition:width 0.1s'></div>
     </div>
-    <div style='color:#b8a07e;font-size:0.75rem;margin-top:8px;font-weight:600'>🔄 掃描第 {_scan_period} / {len(draws)} 期...</div>
+    <div style='color:#4ECDC4;font-size:0.75rem;margin-top:8px;font-weight:600'>🔄 掃描第 {_scan_period} / {len(draws)} 期...</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1235,12 +828,12 @@ with tab1:
 
                 # 最終結果
                 _slot_ph.markdown(f"""
-<div style='text-align:center;padding:1.2rem;background:rgba(0,0,0,0.3);border-radius:12px;margin:0.5rem 0;
-     border:1px solid rgba(184,160,126,0.3)'>
+<div style='text-align:center;padding:1.2rem;background:#f8f9fa;border-radius:16px;margin:0.5rem 0;
+     border:1px solid #eee'>
   <div style='display:flex;justify-content:center;gap:12px'>
-    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,{'#8b6543,#8b6543' if n in killed_set else '#6b7c5a,#16a34a' if n in set(rec.top7) else '#3b82f6,#5c6b52'});align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.4)'>{n:02d}</span>" for n in custom_nums)}
+    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,{'#FF6B6B,#D32F2F' if n in killed_set else '#4ECDC4,#26A69A' if n in set(rec.top7) else '#90CAF9,#42A5F5'});align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1)'>{n:02d}</span>" for n in custom_nums)}
   </div>
-  <div style='color:#aaa;font-size:0.7rem;margin-top:8px'>🟢 推薦號碼　🔴 排除號碼　🔵 普通號碼</div>
+  <div style='color:#999;font-size:0.7rem;margin-top:8px'>🟢 推薦號碼　🔴 排除號碼　🔵 普通號碼</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1254,60 +847,57 @@ with tab1:
 
                 # 大儀表板顯示中獎率
                 if hit3_pct >= 5:
-                    _gauge_color = "#6b7c5a"
+                    _gauge_color = "#4ECDC4"
                     _gauge_text = "🏆 歷史表現優秀！"
-                    _gauge_bg = "rgba(34,197,94,0.06)"
+                    _gauge_bg = "#f0faf9"
                 elif hit3_pct >= 3:
-                    _gauge_color = "#8b7355"
+                    _gauge_color = "#FF9671"
                     _gauge_text = "⚡ 有潛力的組合"
-                    _gauge_bg = "rgba(184,160,126,0.06)"
+                    _gauge_bg = "#fff8f5"
                 elif hit3_pct >= 1:
-                    _gauge_color = "#3b82f6"
+                    _gauge_color = "#42A5F5"
                     _gauge_text = " 正常機率範圍"
-                    _gauge_bg = "rgba(59,130,246,0.06)"
+                    _gauge_bg = "#f5f9ff"
                 else:
-                    _gauge_color = "#8b5cf6"
+                    _gauge_color = "#845EC2"
                     _gauge_text = "✨ 冷門組合，搏一把"
-                    _gauge_bg = "rgba(139,92,246,0.06)"
+                    _gauge_bg = "#f8f5ff"
                 _gauge_deg = min(round(hit3_pct / 10 * 360), 360)
                 # 用 CSS conic-gradient 代替 SVG
                 _ring_html = (
-                    "<div style='position:relative;width:160px;height:160px;margin:0 auto 20px;"
-                    "filter:drop-shadow(0 0 20px " + _gauge_color + "30)'>"
+                    "<div style='position:relative;width:160px;height:160px;margin:0 auto 20px'>"
                     "<div style='width:100%;height:100%;border-radius:50%;"
-                    "background:conic-gradient(" + _gauge_color + " 0deg," + _gauge_color + " " + str(_gauge_deg) + "deg,rgba(255,255,255,0.05) " + str(_gauge_deg) + "deg,rgba(255,255,255,0.05) 360deg);"
+                    "background:conic-gradient(" + _gauge_color + " 0deg," + _gauge_color + " " + str(_gauge_deg) + "deg,#f0f0f0 " + str(_gauge_deg) + "deg,#f0f0f0 360deg);"
                     "-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 14px),#000 calc(100% - 13px));"
                     "mask:radial-gradient(farthest-side,transparent calc(100% - 14px),#000 calc(100% - 13px))'></div>"
                     "<div style='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center'>"
-                    "<div style='font-size:2.8rem;font-weight:900;color:" + _gauge_color + ";line-height:1;"
-                    "text-shadow:0 0 25px " + _gauge_color + "50'>" + str(hit3_pct) + "</div>"
-                    "<div style='font-size:0.75rem;color:#888;margin-top:4px;letter-spacing:1px'>%</div>"
+                    "<div style='font-size:2.8rem;font-weight:900;color:" + _gauge_color + ";line-height:1'>" + str(hit3_pct) + "</div>"
+                    "<div style='font-size:0.75rem;color:#999;margin-top:4px;letter-spacing:1px'>%</div>"
                     "</div></div>"
                 )
                 # 5碼全中特效
-                _hit5_glow = "background:linear-gradient(135deg,rgba(184,160,126,0.1),rgba(184,160,126,0.03));border:1px solid rgba(184,160,126,0.3);box-shadow:0 0 12px rgba(184,160,126,0.15)" if hit5 > 0 else "background:rgba(255,255,255,0.03);border:1px solid rgba(184,160,126,0.1)"
+                _hit5_glow = "background:#fff8f0;border:1px solid #FFE0B2;box-shadow:0 4px 12px rgba(255,152,0,0.1)" if hit5 > 0 else "background:#f8f9fa;border:1px solid #eee"
                 _hit5_icon = "🎉 " if hit5 > 0 else ""
                 _result_html = (
                     "<div style='text-align:center;margin:1rem 0;padding:2rem 1.5rem;background:" + _gauge_bg + ";"
-                    "border-radius:20px;position:relative;overflow:hidden'>"
-                    "  <div style='position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent," + _gauge_color + ",transparent)'></div>"
-                    "  <div style='position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent," + _gauge_color + "40,transparent)'></div>"
-                    "  <div style='font-size:0.75rem;color:#888;letter-spacing:4px;margin-bottom:20px;font-weight:700'>歷 史 模 擬 中 獎 率</div>"
+                    "border-radius:20px;position:relative;overflow:hidden;border:1px solid #eee'>"
+                    "  <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>"
+                    "  <div style='font-size:0.75rem;color:#999;letter-spacing:4px;margin-bottom:20px;font-weight:700'>歷 史 模 擬 中 獎 率</div>"
                     + _ring_html +
-                    "  <div style='font-size:1rem;color:#eee;font-weight:800;letter-spacing:1px'>" + _gauge_text + "</div>"
-                    "  <div style='font-size:0.72rem;color:#666;margin-top:6px'>" + str(hit3) + " / " + str(len(draws)) + " 期命中 3 碼以上</div>"
+                    "  <div style='font-size:1rem;color:#1a1a2e;font-weight:800;letter-spacing:1px'>" + _gauge_text + "</div>"
+                    "  <div style='font-size:0.72rem;color:#999;margin-top:6px'>" + str(hit3) + " / " + str(len(draws)) + " 期命中 3 碼以上</div>"
                     "  <div style='display:flex;justify-content:center;gap:1rem;margin-top:1.5rem'>"
                     "    <div style='" + _hit5_glow + ";border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:" + ("#b8a07e" if hit5 > 0 else "#a89070") + "'>" + _hit5_icon + str(hit5) + "</div>"
-                    "      <div style='font-size:0.62rem;color:#888;margin-top:4px;letter-spacing:1px'>5碼全中</div>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:" + ("#FF9671" if hit5 > 0 else "#ccc") + "'>" + _hit5_icon + str(hit5) + "</div>"
+                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>5碼全中</div>"
                     "    </div>"
-                    "    <div style='background:rgba(255,255,255,0.03);border:1px solid rgba(184,160,126,0.1);border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:#fff'>" + str(hit4) + "</div>"
-                    "      <div style='font-size:0.62rem;color:#888;margin-top:4px;letter-spacing:1px'>中4碼</div>"
+                    "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:#1a1a2e'>" + str(hit4) + "</div>"
+                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中4碼</div>"
                     "    </div>"
-                    "    <div style='background:rgba(255,255,255,0.03);border:1px solid rgba(184,160,126,0.1);border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:#fff'>" + str(hit3) + "</div>"
-                    "      <div style='font-size:0.62rem;color:#888;margin-top:4px;letter-spacing:1px'>中3碼</div>"
+                    "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:#1a1a2e'>" + str(hit3) + "</div>"
+                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中3碼</div>"
                     "    </div>"
                     "  </div>"
                     "</div>"
@@ -1352,8 +942,8 @@ with tab2:
     cold_line = sorted_freqs[int(len(sorted_freqs) * 0.25)] if sorted_freqs else 0
 
     _heat_html = (
-        "<div style='text-align:center;color:#8b7355;font-size:0.8rem;margin-bottom:10px'>"
-        "近 " + str(n_recent) + " 期，顏色越暖 = 出現越多"
+        "<div style='text-align:center;color:#999;font-size:0.8rem;margin-bottom:10px'>"
+        "近 " + str(n_recent) + " 期，紅色越深 = 出現越多"
         "</div>"
     )
     _heat_html += "<div style='display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:0 0 0.6rem'>"
@@ -1362,17 +952,17 @@ with tab2:
 
         # 三段式：熱 / 普通 / 冷
         if f >= hot_line:
-            bg = "rgba(184,160,126,0.45)"
-            tc = "#e8e0d4"
-            fc = "#d4c5a9"
+            bg = "rgba(255,107,107,0.15)"
+            tc = "#FF6B6B"
+            fc = "#e55555"
         elif f <= cold_line:
-            bg = "rgba(60,70,80,0.35)"
-            tc = "#6b7c8a"
-            fc = "#5a6570"
+            bg = "rgba(78,205,196,0.1)"
+            tc = "#4ECDC4"
+            fc = "#3bb8b0"
         else:
-            bg = "rgba(100,95,85,0.2)"
-            tc = "#a89070"
-            fc = "#8b7355"
+            bg = "#f8f8f8"
+            tc = "#555"
+            fc = "#999"
 
         _heat_html += (
             "<div style='background:" + bg + ";border-radius:8px;"
@@ -1387,9 +977,9 @@ with tab2:
 
     # 極簡圖例
     _heat_html += (
-        "<div style='display:flex;gap:20px;justify-content:center;font-size:0.78rem;color:#8b7355'>"
+        "<div style='display:flex;gap:20px;justify-content:center;font-size:0.78rem;color:#FF6B6B'>"
         "<span>■ 熱號（前25%）</span>"
-        "<span style='color:#5a6570'>■ 冷號（後25%）</span>"
+        "<span style='color:#4ECDC4'>■ 冷號（後25%）</span>"
         "</div>"
     )
 
@@ -2091,8 +1681,8 @@ with tab6:
             st.plotly_chart(fig_h, width="stretch")
     else:
         st.markdown("""
-<div style='background:rgba(48,45,38,0.8);border:1px solid rgba(184,160,126,0.1);border-radius:10px;
-            padding:1.5rem;text-align:center;color:#6b7280'>
+<div style='background:#f8f9fa;border:1px solid #eee;border-radius:16px;
+            padding:1.5rem;text-align:center;color:#999'>
   尚無推薦紀錄<br>
   <span style='font-size:0.85rem'>在「推薦選號」Tab 點「儲存本次推薦」，開獎後自動比對命中</span>
 </div>
@@ -2137,29 +1727,29 @@ with tab6:
             # 全中機率對比卡片
             multiplier = model_rate / random_rate if full_match > 0 else 0
             st.markdown(f"""
-<div style='background:rgba(48,45,38,0.85);border:1px solid rgba(184,160,126,0.12);
-            border-radius:12px;padding:1.2rem 1.5rem;margin:0.8rem 0'>
-  <div style='color:#818cf8;font-size:0.85rem;font-weight:600;margin-bottom:1rem'>
+<div style='background:#fff;border:1px solid #eee;
+            border-radius:16px;padding:1.2rem 1.5rem;margin:0.8rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.04)'>
+  <div style='color:#845EC2;font-size:0.85rem;font-weight:600;margin-bottom:1rem'>
     五碼全中機率對比（回測 {n_wf} 期）
   </div>
   <div style='display:flex;gap:2rem;flex-wrap:wrap;align-items:center'>
     <div style='text-align:center'>
-      <div style='color:#94a3b8;font-size:0.72rem;margin-bottom:4px'>純隨機單注</div>
-      <div style='color:#f43f5e;font-size:1.3rem;font-weight:800'>1 / {TOTAL_COMBOS:,}</div>
-      <div style='color:#6b7280;font-size:0.7rem'>{random_rate*100:.6f}%</div>
+      <div style='color:#bbb;font-size:0.72rem;margin-bottom:4px'>純隨機單注</div>
+      <div style='color:#FF6B6B;font-size:1.3rem;font-weight:800'>1 / {TOTAL_COMBOS:,}</div>
+      <div style='color:#999;font-size:0.7rem'>{random_rate*100:.6f}%</div>
     </div>
-    <div style='color:#374151;font-size:1.5rem'>→</div>
+    <div style='color:#ddd;font-size:1.5rem'>→</div>
     <div style='text-align:center'>
-      <div style='color:#94a3b8;font-size:0.72rem;margin-bottom:4px'>模型實測（{n_wf}期）</div>
-      <div style='color:{"#4ade80" if full_match > 0 else "#6b7280"};font-size:1.3rem;font-weight:800'>
+      <div style='color:#bbb;font-size:0.72rem;margin-bottom:4px'>模型實測（{n_wf}期）</div>
+      <div style='color:{"#4ECDC4" if full_match > 0 else "#999"};font-size:1.3rem;font-weight:800'>
         {full_match} / {n_wf}
       </div>
-      <div style='color:#6b7280;font-size:0.7rem'>{model_rate*100:.4f}%</div>
+      <div style='color:#999;font-size:0.7rem'>{model_rate*100:.4f}%</div>
     </div>
-    {"<div style='text-align:center'><div style='color:#94a3b8;font-size:0.72rem;margin-bottom:4px'>倍率（vs隨機）</div><div style='color:#b8a07e;font-size:1.3rem;font-weight:800'>×" + f"{multiplier:,.0f}" + "</div><div style='color:#6b7280;font-size:0.7rem'>相對隨機的優勢</div></div>" if full_match > 0 else
-      "<div style='color:#6b7280;font-size:0.85rem'>（樣本不足，需更多期回測）</div>"}
+    {"<div style='text-align:center'><div style='color:#bbb;font-size:0.72rem;margin-bottom:4px'>倍率（vs隨機）</div><div style='color:#FF9671;font-size:1.3rem;font-weight:800'>×" + f"{multiplier:,.0f}" + "</div><div style='color:#999;font-size:0.7rem'>相對隨機的優勢</div></div>" if full_match > 0 else
+      "<div style='color:#999;font-size:0.85rem'>（樣本不足，需更多期回測）</div>"}
   </div>
-  <div style='margin-top:0.8rem;color:#4b5563;font-size:0.72rem'>
+  <div style='margin-top:0.8rem;color:#999;font-size:0.72rem'>
     💡 若要更準確，請增加回測期數（建議 500~1000 期）
   </div>
 </div>
