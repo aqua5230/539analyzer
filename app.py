@@ -137,6 +137,37 @@ footer { display: none !important; }
 /* === 文字 === */
 body, p, div, span, label { color: #333; font-size: 1rem; }
 h1,h2,h3,h4,h5 { color: #1d1d1f !important; font-weight: 900 !important; letter-spacing: -0.5px; }
+h4 { font-size: 1.2rem !important; margin-bottom: 0.3rem !important; }
+
+/* === Subheader 樣式 === */
+[data-testid="stSubheader"] {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 16px;
+    padding: 0.8rem 1.2rem !important;
+    margin: 1rem 0 0.5rem !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    border-left: 4px solid #4ECDC4;
+}
+
+/* === Plotly 圖表容器 === */
+[data-testid="stPlotlyChart"] {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(0,0,0,0.04);
+    border-radius: 16px;
+    padding: 0.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+}
+
+/* === 分隔線淡化 === */
+hr { border: none !important; height: 1px !important; background: linear-gradient(90deg, transparent, rgba(78,205,196,0.2), transparent) !important; margin: 1.5rem 0 !important; }
+
+/* === Label 樣式 === */
+[data-testid="stWidgetLabel"] p {
+    color: #555 !important; font-weight: 600 !important; font-size: 0.9rem !important;
+}
 
 /* === 球體動畫 === */
 @keyframes hl-orbit {
@@ -295,7 +326,7 @@ details > summary::-webkit-details-marker { display: none !important; }
     background: #e0e0e0 !important;
 }
 
-hr { border-color: #f0f0f0 !important; margin: 1.2rem 0; }
+/* hr 已在上方定義 */
 [data-testid="stCaptionContainer"] { color: #999 !important; font-size: 0.78rem; }
 [data-testid="stAlert"] { border-radius: 10px; border: 1px solid #eee; }
 [data-testid="stRadio"] label { color: #555 !important; font-size: 0.85rem; }
