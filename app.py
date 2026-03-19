@@ -61,7 +61,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
 .rec-card:hover {
-    background: rgba(35,33,28,0.95) !important;
+    background: rgba(55,52,45,0.95) !important;
     border-color: rgba(184,160,126,0.2) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
@@ -71,7 +71,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
     transition: all 0.4s ease !important;
 }
 .trash-container:hover {
-    background: rgba(35,33,28,0.95) !important;
+    background: rgba(55,52,45,0.95) !important;
     border-color: rgba(184,160,126,0.15) !important;
 }
 /* 工具箱 hover */
@@ -79,7 +79,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
     transition: all 0.4s ease !important;
 }
 .toolbox-header:hover {
-    background: rgba(35,33,28,0.95) !important;
+    background: rgba(55,52,45,0.95) !important;
     border-color: rgba(184,160,126,0.15) !important;
 }
 /* 三欄等高 JS 注入 */
@@ -91,11 +91,11 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
 /* ══ 侘寂背景 ══ */
 .stApp {
     background: 
-        radial-gradient(ellipse 120% 60% at 70% 40%, rgba(45,40,32,0.6) 0%, transparent 70%),
-        radial-gradient(ellipse 80% 80% at 20% 80%, rgba(35,30,25,0.4) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 85% 15%, rgba(50,42,30,0.3) 0%, transparent 50%),
-        linear-gradient(175deg, #1c1b19 0%, #1a1916 25%, #1e1d1a 50%, #191816 75%, #1c1b18 100%);
-    background-color: #1a1916;
+        radial-gradient(ellipse 120% 60% at 70% 40%, rgba(60,55,45,0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 80% at 20% 80%, rgba(50,45,38,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 85% 15%, rgba(65,58,45,0.25) 0%, transparent 50%),
+        linear-gradient(175deg, #2a2824 0%, #282622 25%, #2c2b27 50%, #272520 75%, #2a2824 100%);
+    background-color: #282622;
 }
 
 /* 讓各層容器透明，確保背景圖顯示 */
@@ -199,7 +199,7 @@ h1,h2,h3,h4,h5 { color: #fff !important; font-weight: 900 !important; letter-spa
 
 /* ══ Tab ══ */
 [data-testid="stTabs"] [data-baseweb="tab-list"] {
-    gap: 2px; background: rgba(30,28,24,0.82); border-radius: 8px; padding: 4px;
+    gap: 2px; background: rgba(50,47,40,0.82); border-radius: 8px; padding: 4px;
     border: 1px solid rgba(184,160,126,0.08);
     box-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
@@ -215,7 +215,7 @@ h1,h2,h3,h4,h5 { color: #fff !important; font-weight: 900 !important; letter-spa
 
 /* ══ Metric ══ */
 [data-testid="stMetric"] {
-    background: rgba(28,27,24,0.85); border: 1px solid rgba(184,160,126,0.1);
+    background: rgba(48,45,38,0.85); border: 1px solid rgba(184,160,126,0.1);
     border-top: none; border-radius: 12px;
     padding: 1rem 1.2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
@@ -261,7 +261,7 @@ details > summary::-webkit-details-marker { display: none !important; }
 
 /* ══ Button ══ */
 [data-testid="stButton"] button {
-    background: rgba(28,27,24,0.85); border: 1px solid rgba(184,160,126,0.1);
+    background: rgba(48,45,38,0.85); border: 1px solid rgba(184,160,126,0.1);
     border-top: none; border-radius: 10px;
     color: #ccc; font-weight: 700; font-size: 0.85rem;
     box-shadow: 0 4px 16px rgba(0,0,0,0.6);
@@ -565,7 +565,7 @@ with st.sidebar:
 <div style='text-align:center;padding:0.5rem 0 1rem'>
   <div style='font-size:1.4rem;color:#b8a07e'>◆</div>
   <div style='color:#e2e8f0;font-size:1rem;font-weight:700;letter-spacing:1px'>539 開獎小秘書</div>
-  <div style='color:#6b6358;font-size:0.72rem;margin-top:2px;letter-spacing:2px'>數據分析工具</div>
+  <div style='color:#8a8070;font-size:0.72rem;margin-top:2px;letter-spacing:2px'>數據分析工具</div>
 </div>
 """, unsafe_allow_html=True)
     draws = []
@@ -675,7 +675,7 @@ st.markdown(f'''
 
 # ── 頂部：期數 + 上期號碼
 st.markdown(f"""
-<div style='position:relative;overflow:hidden;background:rgba(14,16,24,0.88);border:1px solid rgba(184,160,126,0.1);border-radius:20px;padding:2rem 2rem 1.8rem;margin-bottom:8px;
+<div style='position:relative;overflow:hidden;background:rgba(42,40,35,0.88);border:1px solid rgba(184,160,126,0.1);border-radius:20px;padding:2rem 2rem 1.8rem;margin-bottom:8px;
             box-shadow:0 -4px 32px rgba(0,0,0,0.6)'>
   <!-- 🌌 大面積漸層底色 -->
   <div style='position:absolute;inset:0;background:
@@ -705,7 +705,7 @@ st.markdown(f"""
   <!-- 底部雙金線 -->
   <!-- 主內容 -->
   <div style='position:relative;text-align:center;z-index:1'>
-    <div style='color:#71717a;font-size:0.68rem;font-weight:700;letter-spacing:2px;margin-bottom:8px'>已分析 {len(draws)} 期資料</div>
+    <div style='color:#9a9a9a;font-size:0.68rem;font-weight:700;letter-spacing:2px;margin-bottom:8px'>已分析 {len(draws)} 期資料</div>
     <div style='color:#b8a07e;font-size:1.3rem;font-weight:900;letter-spacing:1px;margin-bottom:6px'>最新開獎號碼</div>
     <div style='color:#a1a1aa;font-size:0.85rem;font-weight:600;margin-bottom:16px'>{latest.period}</div>
     <div style='display:flex;gap:12px;justify-content:center;flex-wrap:wrap'>
@@ -772,7 +772,7 @@ with _c5:
     _balls5_html = "".join("<span class='b-r' style='width:" + _ball5_size + ";height:" + _ball5_size + ";font-size:" + _ball5_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top5)
     _ring5_html = _conf_ring_html(_conf5, _is_best5)
     _glow5_html = "<div style='position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at top,rgba(184,160,126,0.06),transparent 70%);pointer-events:none'></div>" if _is_best5 else ""
-    _html5 = ("<div class='rec-card' style='background:rgba(28,27,24,0.88);" + _border5 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
+    _html5 = ("<div class='rec-card' style='background:rgba(48,45,38,0.88);" + _border5 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + _glow5_html
         + "<div style='position:relative;z-index:1'>"
         + _crown5
@@ -796,7 +796,7 @@ with _c6:
     _balls6_html = "".join("<span class='b-p' style='width:" + _ball6_size + ";height:" + _ball6_size + ";font-size:" + _ball6_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top6)
     _ring6_html = _conf_ring_html(_conf6, _is_best6)
     _glow6_html = "<div style='position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at top,rgba(184,160,126,0.06),transparent 70%);pointer-events:none'></div>" if _is_best6 else ""
-    _html6 = ("<div class='rec-card' style='background:rgba(28,27,24,0.88);" + _border6 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
+    _html6 = ("<div class='rec-card' style='background:rgba(48,45,38,0.88);" + _border6 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + _glow6_html
         + "<div style='position:relative;z-index:1'>"
         + _crown6
@@ -820,7 +820,7 @@ with _c7:
     _balls7_html = "".join("<span class='b-b' style='width:" + _ball7_size + ";height:" + _ball7_size + ";font-size:" + _ball7_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top7)
     _ring7_html = _conf_ring_html(_conf7, _is_best7)
     _glow7_html = "<div style='position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at top,rgba(184,160,126,0.06),transparent 70%);pointer-events:none'></div>" if _is_best7 else ""
-    _html7 = ("<div class='rec-card' style='background:rgba(28,27,24,0.88);" + _border7 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
+    _html7 = ("<div class='rec-card' style='background:rgba(48,45,38,0.88);" + _border7 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + _glow7_html
         + "<div style='position:relative;z-index:1'>"
         + _crown7
@@ -879,7 +879,7 @@ for n in killed_list:
 st.markdown(f"""
 <style>
 .trash-container {{
-  background: rgba(14,16,24,0.88);
+  background: rgba(42,40,35,0.88);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   padding: 1.2rem 1.4rem;
@@ -940,7 +940,7 @@ st.markdown(f"""
   bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(30,28,24,0.97);
+  background: rgba(50,47,40,0.97);
   border: 1px solid rgba(184,160,126,0.2);
   border-radius: 10px;
   padding: 10px 14px;
@@ -990,7 +990,7 @@ st.markdown("""
   100% { transform: perspective(800px) rotateX(0deg); opacity: 1; }
 }
 .toolbox-header {
-  background: rgba(14,16,24,0.88);
+  background: rgba(42,40,35,0.88);
   border: 1px solid rgba(255,255,255,0.08);
   border-bottom: none;
   border-radius: 20px 20px 0 0;
@@ -1116,10 +1116,10 @@ with tab1:
             _tags += "<span style='display:inline-block;padding:2px 8px;margin:2px;font-size:0.7rem;background:rgba(184,160,126,0.1);border:1px solid rgba(184,160,126,0.15);border-radius:4px;color:#a89070'>" + label + "</span>"
 
         if not _tags:
-            _tags = "<span style='font-size:0.7rem;color:#6b6358'>基礎分</span>"
+            _tags = "<span style='font-size:0.7rem;color:#8a8070'>基礎分</span>"
 
         _cards_html += (
-            "<div style='background:rgba(28,27,24,0.85);"
+            "<div style='background:rgba(48,45,38,0.85);"
             "border:1px solid rgba(184,160,126,0.12);" + _in5 + ";border-radius:10px;padding:14px 12px;text-align:center'>"
             "  <div style='font-size:1.3rem;font-weight:700;color:#e8e0d4;font-family:Inter,sans-serif'>" + f"{n:02d}" + "</div>"
             "  <div style='margin:6px 0'>"
@@ -1165,7 +1165,7 @@ with tab1:
 
     # ══ 對獎驗證 ══
     st.markdown("""
-<div style='position:relative;overflow:hidden;background:linear-gradient(135deg, rgba(28,27,24,0.95), rgba(35,33,28,0.95));
+<div style='position:relative;overflow:hidden;background:linear-gradient(135deg, rgba(28,27,24,0.95), rgba(55,52,45,0.95));
      border:1px solid rgba(184,160,126,0.15);border-radius:12px;padding:1.8rem 1.5rem 1.2rem;margin:1rem 0;
      box-shadow:0 4px 16px rgba(0,0,0,0.3)'>
   <!-- 機台頂部燈條 -->
@@ -1212,7 +1212,7 @@ with tab1:
                     _progress = round((_frame + 1) / _total_frames * 100)
                     _scan_period = round((_frame + 1) / _total_frames * len(draws))
                     _slot_ph.markdown(f"""
-<div style='text-align:center;padding:1.2rem;background:rgba(28,27,24,0.6);
+<div style='text-align:center;padding:1.2rem;background:rgba(48,45,38,0.6);
             border-radius:16px;margin:0.5rem 0;border:1px solid rgba(184,160,126,0.15)'>
   <div style='display:flex;justify-content:center;gap:14px'>
     {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,#8b7355,#6b5c3e);align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#000;box-shadow:0 4px 16px rgba(184,160,126,0.4)'>{n:02d}</span>" for n in _rand_nums)}
@@ -2091,7 +2091,7 @@ with tab6:
             st.plotly_chart(fig_h, width="stretch")
     else:
         st.markdown("""
-<div style='background:rgba(28,27,24,0.8);border:1px solid rgba(184,160,126,0.1);border-radius:10px;
+<div style='background:rgba(48,45,38,0.8);border:1px solid rgba(184,160,126,0.1);border-radius:10px;
             padding:1.5rem;text-align:center;color:#6b7280'>
   尚無推薦紀錄<br>
   <span style='font-size:0.85rem'>在「推薦選號」Tab 點「儲存本次推薦」，開獎後自動比對命中</span>
@@ -2137,7 +2137,7 @@ with tab6:
             # 全中機率對比卡片
             multiplier = model_rate / random_rate if full_match > 0 else 0
             st.markdown(f"""
-<div style='background:rgba(28,27,24,0.85);border:1px solid rgba(184,160,126,0.12);
+<div style='background:rgba(48,45,38,0.85);border:1px solid rgba(184,160,126,0.12);
             border-radius:12px;padding:1.2rem 1.5rem;margin:0.8rem 0'>
   <div style='color:#818cf8;font-size:0.85rem;font-weight:600;margin-bottom:1rem'>
     五碼全中機率對比（回測 {n_wf} 期）
