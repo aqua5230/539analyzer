@@ -1161,11 +1161,74 @@ with tab2:
 
     # 個別號碼趨勢圖
     st.markdown("---")
-    st.markdown("#### 📈 個別號碼出現趨勢")
-    selected_num = st.selectbox("選擇號碼", [f"{n:02d}" for n in range(1, 40)])
-    num_val = int(selected_num)
-    window = st.slider("每幾期統計一次", 10, 50, 20, key="trend_window")
+    st.markdown("#### 🔍 號碼探測器")
 
+    _sel_col1, _sel_col2 = st.columns([2, 1])
+    with _sel_col1:
+        selected_num = st.selectbox("選一個號碼，看它的歷史表現", [f"{n:02d}" for n in range(1, 40)], label_visibility="collapsed")
+    with _sel_col2:
+        window = st.slider("統計窗口", 10, 50, 20, key="trend_window", label_visibility="collapsed")
+
+    num_val = int(selected_num)
+    _freq = freq_map.get(num_val, 0)
+    _cyc = cycle_info.get(num_val, {})
+    _avg_gap = _cyc.get("平均間隔", "N/A")
+    _miss = _cyc.get("當前遺漏", 0)
+    _overdue = _cyc.get("已到期", False)
+    _in5 = num_val in rec.top5
+    _in7 = num_val in rec.top7
+    base_rate = 5 / 39 * 100
+
+    # 狀態判斷
+    if _in5:
+        _status_emoji = "🔥"
+        _status_text = "強力推薦"
+        _status_color = "#FF6B6B"
+        _status_bg = "rgba(255,107,107,0.1)"
+    elif _in7:
+        _status_emoji = "👍"
+        _status_text = "推薦候選"
+        _status_color = "#4ECDC4"
+        _status_bg = "rgba(78,205,196,0.1)"
+    elif _overdue:
+        _status_emoji = "💤"
+        _status_text = "久未開出"
+        _status_color = "#FF9671"
+        _status_bg = "rgba(255,150,113,0.1)"
+    else:
+        _status_emoji = "📊"
+        _status_text = "一般狀態"
+        _status_color = "#888"
+        _status_bg = "rgba(0,0,0,0.03)"
+
+    # 號碼資訊卡
+    _num_color = "#FF6B6B" if _in5 else ("#4ECDC4" if _in7 else "#845EC2")
+    st.markdown(
+        "<div style='background:rgba(255,255,255,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);"
+        "border:1px solid rgba(0,0,0,0.05);border-radius:20px;padding:1.2rem 1.5rem;margin:0.5rem 0;"
+        "display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap'>"
+        # 大球
+        "<div style='width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg," + _num_color + "," + _num_color + "cc);"
+        "display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;font-weight:900;"
+        "box-shadow:0 6px 20px " + _num_color + "40;flex-shrink:0'>" + f"{num_val:02d}" + "</div>"
+        # 資訊
+        "<div style='flex:1;min-width:200px'>"
+        "<div style='display:flex;align-items:center;gap:8px;margin-bottom:6px'>"
+        "<span style='font-size:1.4rem;font-weight:800;color:#1d1d1f'>號碼 " + f"{num_val:02d}" + "</span>"
+        "<span style='background:" + _status_bg + ";color:" + _status_color + ";padding:3px 10px;border-radius:20px;"
+        "font-size:0.8rem;font-weight:700'>" + _status_emoji + " " + _status_text + "</span>"
+        "</div>"
+        "<div style='display:flex;gap:1.5rem;flex-wrap:wrap;color:#666;font-size:0.9rem'>"
+        "<span>近期 <b style='color:#1d1d1f;font-size:1.1rem'>" + str(_freq) + "</b> 次</span>"
+        "<span>間隔 <b style='color:#1d1d1f;font-size:1.1rem'>" + str(_avg_gap) + "</b> 期</span>"
+        "<span>已遺漏 <b style='color:" + ("#FF6B6B" if _overdue else "#1d1d1f") + ";font-size:1.1rem'>" + str(_miss) + "</b> 期</span>"
+        "</div>"
+        "</div>"
+        "</div>",
+        unsafe_allow_html=True
+    )
+
+    # 趨勢圖
     trend = []
     for i in range(0, len(draws) - window, window):
         chunk = draws[i:i+window]
@@ -1174,33 +1237,29 @@ with tab2:
 
     if trend:
         trend_last = trend[-30:]
-        base_rate = 5 / 39 * 100
-        tag_color = "#e74c3c" if num_val in rec.top5 else ("#3498db" if num_val in rec.top7 else "#888888")
+        tag_color = "#FF6B6B" if _in5 else ("#4ECDC4" if _in7 else "#845EC2")
         fig_trend = go.Figure()
         fig_trend.add_trace(go.Scatter(
             x=[t["期段"] for t in trend_last],
             y=[t["出現率"] for t in trend_last],
             mode="lines+markers",
-            line=dict(color=tag_color, width=2),
-            marker=dict(size=6),
+            line=dict(color=tag_color, width=2.5, shape="spline"),
+            marker=dict(size=7, color="#fff", line=dict(color=tag_color, width=2)),
             fill="tozeroy",
-            fillcolor=f"rgba{tuple(int(tag_color.lstrip('#')[i:i+2],16) for i in (0,2,4)) + (0.12,)}",
+            fillcolor=f"rgba{tuple(int(tag_color.lstrip('#')[i:i+2],16) for i in (0,2,4)) + (0.08,)}",
             name="出現率%",
         ))
-        fig_trend.add_hline(y=base_rate, line_dash="dash", line_color="#555",
-                            annotation_text=f"理論基準 {base_rate:.1f}%", annotation_position="top right")
+        fig_trend.add_hline(y=base_rate, line_dash="dot", line_color="#ccc", line_width=1.5,
+                            annotation_text=f"基準 {base_rate:.1f}%",
+                            annotation_font=dict(size=11, color="#999"),
+                            annotation_position="top right")
         fig_trend.update_layout(**_dark_layout(
-            f"號碼 {num_val:02d} 出現率趨勢（每{window}期）", height=260,
+            f"", height=240,
             yaxis_title="出現率 (%)",
             xaxis=dict(tickangle=-30),
+            showlegend=False,
         ))
-        st.plotly_chart(fig_trend, width="stretch")
-        cyc = cycle_info.get(num_val, {})
-        col_t1, col_t2, col_t3 = st.columns(3)
-        col_t1.metric("近期出現", f"{freq_map.get(num_val, 0)} 次")
-        col_t2.metric("平均出現間隔", f"{cyc.get('平均間隔', 'N/A')} 期")
-        col_t3.metric("當前遺漏", f"{cyc.get('當前遺漏', 'N/A')} 期",
-                      "久未開出" if cyc.get("已到期") else "")
+        st.plotly_chart(fig_trend, use_container_width=True)
 
     # 配對分析
     st.markdown("---")
