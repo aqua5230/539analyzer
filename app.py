@@ -948,14 +948,15 @@ with tab1:
   <div style='text-align:center;margin-bottom:0.5rem'>
     <div style='font-size:1.4rem;margin-bottom:6px'>🎰</div>
     <div style='color:#1d1d1f;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
-    <div style='color:#999;font-size:0.72rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
+    <div style='color:#999;font-size:0.95rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
+    st.markdown("<div style='color:#666;font-size:1rem;margin-bottom:4px'>輸入 5 個號碼（空格、逗號、頓號皆可）例如：<b>5 12 19 27 34</b></div>", unsafe_allow_html=True)
     _vc1, _vc2 = st.columns([3, 1])
     with _vc1:
-        custom_input = st.text_input("輸入 5 個號碼", placeholder="例如：5 12 19 27 34 或 5,12,19,27,34",
+        custom_input = st.text_input("輸入 5 個號碼", placeholder="5 12 19 27 34",
                                       label_visibility="collapsed", key="validator_input")
     with _vc2:
         verify_btn = st.button("開始驗證", type="primary", use_container_width=True)
