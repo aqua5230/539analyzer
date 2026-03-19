@@ -36,22 +36,87 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
 div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div > div[data-testid="stVerticalBlock"] { flex:1 !important; display:flex !important; flex-direction:column !important; }
 div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-testid="stVerticalBlockBorderWrapper"] > div > div[data-testid="stVerticalBlock"] > div { flex:1 !important; }
 
-/* === 推薦卡片 === */
+/* === Apple 磨砂玻璃卡片 === */
 .rec-card {
     display:flex !important; flex-direction:column !important; justify-content:space-between !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.5s cubic-bezier(0.25,0.1,0.25,1) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
 }
 .rec-card:hover {
     transform: translateY(-4px) !important;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08) !important;
 }
-.trash-container { transition: all 0.3s ease !important; }
-.trash-container:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important; }
-.toolbox-header { transition: all 0.3s ease !important; }
+.trash-container {
+    transition: all 0.5s cubic-bezier(0.25,0.1,0.25,1) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+.trash-container:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.06) !important; transform: translateY(-2px); }
+.toolbox-header {
+    transition: all 0.5s cubic-bezier(0.25,0.1,0.25,1) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
 
-/* === 背景 === */
-.stApp { background: #f5f3ef !important; }
-[data-testid="stAppViewContainer"] { background: #f5f3ef !important; }
+/* === 球體動效 === */
+@keyframes ball-bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+.b-r:hover, .b-p:hover, .b-b:hover, .b-g:hover {
+    animation: ball-bounce 0.5s cubic-bezier(0.25,0.1,0.25,1) !important;
+    filter: brightness(1.08) !important;
+}
+
+/* === 裝飾動畫 === */
+@keyframes float-slow {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(3deg); }
+}
+@keyframes pulse-soft {
+    0%,100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* === Apple 磨砂共用 === */
+.apple-glass {
+    background: rgba(255,255,255,0.72) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255,255,255,0.6) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.04), inset 0 0 0 0.5px rgba(255,255,255,0.5) !important;
+}
+
+/* === Apple 風格背景 — 大色塊模糊 === */
+.stApp {
+    background: #f5f5f7 !important;
+    min-height: 100vh;
+    position: relative;
+}
+.stApp::before {
+    content: '';
+    position: fixed;
+    top: -20%; left: -10%;
+    width: 50vw; height: 50vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,107,0.12) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+}
+.stApp::after {
+    content: '';
+    position: fixed;
+    bottom: -10%; right: -10%;
+    width: 45vw; height: 45vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(78,205,196,0.1) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+}
+[data-testid="stAppViewContainer"] { background: transparent !important; }
 [data-testid="stAppViewContainer"] > section { background: transparent !important; }
 [data-testid="stAppViewContainer"] > section > div { background: transparent !important; }
 .block-container { background: transparent !important; padding-top: 0 !important; margin-top: 0 !important; }
@@ -136,26 +201,36 @@ h1,h2,h3,h4,h5 { color: #1a1a2e !important; font-weight: 900 !important; letter-
     font-weight: 600; color: #888; background: transparent; border: none;
 }
 [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] {
-    background: #fff; color: #1a1a2e !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border: 1px solid #eee;
+    background: linear-gradient(135deg,#4ECDC4,#26A69A); color: #fff !important;
+    box-shadow: 0 4px 12px rgba(78,205,196,0.3);
+    border: none;
 }
 
 /* === Metric === */
 [data-testid="stMetric"] {
-    background: #fff; border: 1px solid #eee;
-    border-top: 3px solid; border-image: linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2) 1;
-    border-radius: 12px;
-    padding: 1rem 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: rgba(255,255,255,0.72); border: 1px solid rgba(255,255,255,0.6);
+    border-left: 4px solid #4ECDC4;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    transition: all 0.5s cubic-bezier(0.25,0.1,0.25,1);
+}
+[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
 }
 [data-testid="stMetricLabel"] { color: #888 !important; font-size: 0.7rem !important; letter-spacing: 1px; font-weight: 700 !important; }
 [data-testid="stMetricValue"] { color: #1a1a2e !important; font-size: 1.8rem !important; font-weight: 900 !important; letter-spacing: -1px; }
 
 /* === Expander === */
 [data-testid="stExpander"] {
-    background: #fff; border: 1px solid #eee;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: rgba(255,255,255,0.72); border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 details > summary::marker { display: none !important; }
 details > summary::-webkit-details-marker { display: none !important; }
@@ -392,15 +467,21 @@ _max_s = max((v["總分"] for v in _sb.values()), default=1) or 1
 def _conf(nums): return round(sum(_sb.get(n,{}).get("總分",0) for n in nums) / (len(nums) * _max_s) * 100)
 _conf5, _conf6, _conf7 = _conf(rec.top5), _conf(rec.top6), _conf(rec.top7)
 
-# ── 置中標題
+# ── 置中標題（帶裝飾）
 st.markdown('''
-<div style="text-align:center;padding:0.5rem 0 0.8rem;">
-  <div style='font-size:3.2rem;font-weight:900;letter-spacing:8px;text-align:center;line-height:1.2'>
+<div style="text-align:center;padding:1rem 0 0.8rem;position:relative">
+  <!-- 裝飾圓球 -->
+  <div style='position:absolute;top:-5px;left:8%;width:40px;height:40px;border-radius:50%;background:rgba(255,107,107,0.12);animation:float-slow 4s ease-in-out infinite'></div>
+  <div style='position:absolute;top:10px;right:10%;width:25px;height:25px;border-radius:50%;background:rgba(78,205,196,0.15);animation:float-slow 5s ease-in-out infinite 1s'></div>
+  <div style='position:absolute;bottom:0;left:20%;width:18px;height:18px;border-radius:50%;background:rgba(132,94,194,0.1);animation:float-slow 3.5s ease-in-out infinite 0.5s'></div>
+  <div style='position:absolute;top:5px;right:25%;width:12px;height:12px;border-radius:50%;background:rgba(255,199,95,0.2);animation:pulse-soft 3s ease-in-out infinite'></div>
+  <!-- 主標題 -->
+  <div style='font-size:3.2rem;font-weight:900;letter-spacing:8px;text-align:center;line-height:1.2;position:relative'>
     <span style="color:#FF6B6B">今</span><span style="color:#4ECDC4">彩</span>
-    <span style="color:#845EC2">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
+    <span style="color:#845EC2;margin-left:4px">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
   </div>
-  <div style='width:50px;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2);margin:8px auto 6px;border-radius:2px'></div>
-  <div style='font-size:0.82rem;font-weight:500;color:#aaa;letter-spacing:4px;text-align:center'>數據分析 · 智慧選號</div>
+  <div style='width:60px;height:4px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2,#FFC75F);margin:10px auto 8px;border-radius:3px'></div>
+  <div style='font-size:0.85rem;font-weight:600;color:#bbb;letter-spacing:5px;text-align:center'>數據分析 · 智慧選號</div>
 </div>
 ''', unsafe_allow_html=True)
 
@@ -412,12 +493,14 @@ for _i, _n in enumerate(latest.numbers):
     _latest_balls += "<span class='latest-ball' style='display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:" + _bc + ";color:#fff;font-size:1.35rem;font-weight:900;box-shadow:0 4px 16px " + _bc + "40;border:2px solid rgba(255,255,255,0.8);text-shadow:0 1px 2px rgba(0,0,0,0.2)'>" + f"{_n:02d}" + "</span>"
 
 st.markdown(f"""
-<div style='background:#fff;border:1px solid #eee;border-radius:20px;padding:2rem 2rem 1.8rem;margin-bottom:8px;
-            box-shadow:0 4px 20px rgba(0,0,0,0.04)'>
-  <div style='text-align:center'>
-    <div style='color:#bbb;font-size:0.68rem;font-weight:700;letter-spacing:2px;margin-bottom:8px'>已分析 {len(draws)} 期資料</div>
-    <div style='color:#1a1a2e;font-size:1.2rem;font-weight:700;letter-spacing:4px;margin-bottom:6px'>最新開獎號碼</div>
-    <div style='color:#999;font-size:0.85rem;font-weight:600;margin-bottom:16px'>{latest.period}</div>
+<div style='background:rgba(255,255,255,0.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,0.6);border-radius:24px;padding:2rem 1.5rem 1.8rem;margin-bottom:10px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.04),inset 0 0 0 0.5px rgba(255,255,255,0.5);position:relative;overflow:hidden'>
+  <div style='position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,199,95,0.08)'></div>
+  <div style='position:absolute;bottom:-15px;left:-15px;width:80px;height:80px;border-radius:50%;background:rgba(78,205,196,0.06)'></div>
+  <div style='text-align:center;position:relative'>
+    <div style='display:inline-block;background:rgba(78,205,196,0.1);color:#4ECDC4;font-size:0.7rem;font-weight:700;letter-spacing:2px;padding:3px 14px;border-radius:99px;margin-bottom:10px'>已分析 {len(draws)} 期</div>
+    <div style='color:#1a1a2e;font-size:1.3rem;font-weight:900;letter-spacing:4px;margin-bottom:4px'>最新開獎號碼</div>
+    <div style='color:#bbb;font-size:0.85rem;font-weight:600;margin-bottom:16px'>{latest.period}</div>
     <div style='display:flex;gap:12px;justify-content:center;flex-wrap:wrap'>
       {_latest_balls}
     </div>
@@ -465,68 +548,74 @@ _c5, _c6, _c7 = st.columns(3)
 with _c5:
     _is_best5 = (_best_conf == _conf5)
     if _is_best5:
-        _border5 = "border:2px solid #FF6B6B;box-shadow:0 4px 20px rgba(255,107,107,0.12)"
-        _crown5 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px'>🏆</div>"
-        _badge5 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#FF6B6B,#FF9671);color:#fff;font-size:0.6rem;font-weight:900;padding:3px 12px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
+        _border5 = "border:2px solid #FF6B6B;box-shadow:0 8px 25px rgba(255,107,107,0.12)"
+        _crown5 = "<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px'><span style='font-size:1.1rem'>🏆</span>"
+        _badge5 = "</div><div style='text-align:left;margin-top:10px'><span style='background:linear-gradient(135deg,#FF6B6B,#FF9671);color:#fff;font-size:0.65rem;font-weight:900;padding:4px 14px;border-radius:99px;letter-spacing:1px'>首選推薦</span></div>"
+        _bg5 = "background:linear-gradient(135deg,#fff 0%,#fff5f5 100%)"
     else:
-        _border5 = "border:1px solid #eee"
-        _crown5 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px;opacity:0'>🏆</div>"
-        _badge5 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:3px 12px'>首選</span></div>"
+        _border5 = "border:1px solid rgba(0,0,0,0.06)"
+        _crown5 = "<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px'><span style='font-size:1.1rem;opacity:0'>🏆</span>"
+        _badge5 = "</div>"
+        _bg5 = "background:#fff"
     _ball5_size = "3.2rem" if _is_best5 else "2.8rem"
     _ball5_font = "1.1rem" if _is_best5 else "1rem"
     _balls5_html = "".join("<span class='b-r' style='width:" + _ball5_size + ";height:" + _ball5_size + ";font-size:" + _ball5_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top5)
     _ring5_html = _conf_ring_html(_conf5, _is_best5)
-    _html5 = ("<div class='rec-card' style='background:#fff;" + _border5 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
+    _html5 = ("<div class='rec-card' style='" + _bg5 + ";" + _border5 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + "<div style='position:relative;z-index:1'>"
         + _crown5
-        + "<div style='color:#888;font-size:0.68rem;font-weight:600;letter-spacing:2px;margin-bottom:10px;text-align:center'>五號中獎王（Pick 5）</div>"
-        + "<div style='display:flex;gap:8px;flex-wrap:wrap;justify-content:center'>" + _balls5_html + "</div>"
+        + "<span style='color:#FF6B6B;font-size:0.75rem;font-weight:700;letter-spacing:1px'>五號中獎王（Pick 5）</span></div>"
+        + "<div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px'>" + _balls5_html + "</div>"
         + _ring5_html + _badge5
-        + "</div></div>")
+        + "</div>")
     st.markdown(_html5, unsafe_allow_html=True)
 with _c6:
     _is_best6 = (_best_conf == _conf6 and not (_best_conf == _conf5))
     if _is_best6:
-        _border6 = "border:2px solid #845EC2;box-shadow:0 4px 20px rgba(132,94,194,0.12)"
-        _crown6 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px'>🏆</div>"
-        _badge6 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#845EC2,#B39CD0);color:#fff;font-size:0.6rem;font-weight:900;padding:3px 12px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
+        _border6 = "border:2px solid #845EC2;box-shadow:0 8px 25px rgba(132,94,194,0.12)"
+        _crown6 = "<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px'><span style='font-size:1.1rem'>🏆</span>"
+        _badge6 = "</div><div style='text-align:left;margin-top:10px'><span style='background:linear-gradient(135deg,#845EC2,#B39CD0);color:#fff;font-size:0.65rem;font-weight:900;padding:4px 14px;border-radius:99px;letter-spacing:1px'>首選推薦</span></div>"
+        _bg6 = "background:linear-gradient(135deg,#fff 0%,#f8f5ff 100%)"
     else:
-        _border6 = "border:1px solid #eee"
-        _crown6 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px;opacity:0'>🏆</div>"
-        _badge6 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:3px 12px'>首選</span></div>"
+        _border6 = "border:1px solid rgba(0,0,0,0.06)"
+        _crown6 = "<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px'><span style='font-size:1.1rem;opacity:0'>🏆</span>"
+        _badge6 = "</div>"
+        _bg6 = "background:#fff"
     _ball6_size = "3.2rem" if _is_best6 else "2.6rem"
     _ball6_font = "1.1rem" if _is_best6 else "0.95rem"
     _balls6_html = "".join("<span class='b-p' style='width:" + _ball6_size + ";height:" + _ball6_size + ";font-size:" + _ball6_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top6)
     _ring6_html = _conf_ring_html(_conf6, _is_best6)
-    _html6 = ("<div class='rec-card' style='background:#fff;" + _border6 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
+    _html6 = ("<div class='rec-card' style='" + _bg6 + ";" + _border6 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + "<div style='position:relative;z-index:1'>"
         + _crown6
-        + "<div style='color:#888;font-size:0.68rem;font-weight:600;letter-spacing:2px;margin-bottom:10px;text-align:center'>六六大順組（Pick 6）</div>"
-        + "<div style='display:flex;gap:8px;flex-wrap:wrap;justify-content:center'>" + _balls6_html + "</div>"
+        + "<span style='color:#845EC2;font-size:0.75rem;font-weight:700;letter-spacing:1px'>六六大順組（Pick 6）</span></div>"
+        + "<div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px'>" + _balls6_html + "</div>"
         + _ring6_html + _badge6
-        + "</div></div>")
+        + "</div>")
     st.markdown(_html6, unsafe_allow_html=True)
 with _c7:
     _is_best7 = (_best_conf == _conf7 and not (_best_conf == _conf5) and not (_best_conf == _conf6))
     if _is_best7:
-        _border7 = "border:2px solid #4ECDC4;box-shadow:0 4px 20px rgba(78,205,196,0.12)"
-        _crown7 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px'>🏆</div>"
-        _badge7 = "<div style='text-align:center;margin-top:8px'><span style='background:linear-gradient(135deg,#4ECDC4,#26A69A);color:#fff;font-size:0.6rem;font-weight:900;padding:3px 12px;border-radius:99px;letter-spacing:1px'>首選</span></div>"
+        _border7 = "border:2px solid #4ECDC4;box-shadow:0 8px 25px rgba(78,205,196,0.12)"
+        _crown7 = "<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px'><span style='font-size:1.1rem'>🏆</span>"
+        _badge7 = "</div><div style='text-align:left;margin-top:10px'><span style='background:linear-gradient(135deg,#4ECDC4,#26A69A);color:#fff;font-size:0.65rem;font-weight:900;padding:4px 14px;border-radius:99px;letter-spacing:1px'>首選推薦</span></div>"
+        _bg7 = "background:linear-gradient(135deg,#fff 0%,#f0faf9 100%)"
     else:
-        _border7 = "border:1px solid #eee"
-        _crown7 = "<div style='text-align:center;font-size:1.2rem;margin-bottom:6px;opacity:0'>🏆</div>"
-        _badge7 = "<div style='text-align:center;margin-top:8px'><span style='opacity:0;font-size:0.6rem;padding:3px 12px'>首選</span></div>"
+        _border7 = "border:1px solid rgba(0,0,0,0.06)"
+        _crown7 = "<div style='display:flex;align-items:center;gap:8px;margin-bottom:8px'><span style='font-size:1.1rem;opacity:0'>🏆</span>"
+        _badge7 = "</div>"
+        _bg7 = "background:#fff"
     _ball7_size = "3.2rem" if _is_best7 else "2.6rem"
     _ball7_font = "1.1rem" if _is_best7 else "0.95rem"
     _balls7_html = "".join("<span class='b-b' style='width:" + _ball7_size + ";height:" + _ball7_size + ";font-size:" + _ball7_font + ";'>" + f"{n:02d}" + "</span>" for n in rec.top7)
     _ring7_html = _conf_ring_html(_conf7, _is_best7)
-    _html7 = ("<div class='rec-card' style='background:#fff;" + _border7 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
+    _html7 = ("<div class='rec-card' style='" + _bg7 + ";" + _border7 + ";border-radius:20px;padding:1.4rem;margin-top:8px;position:relative;overflow:hidden'>"
         + "<div style='position:relative;z-index:1'>"
         + _crown7
-        + "<div style='color:#888;font-size:0.68rem;font-weight:600;letter-spacing:2px;margin-bottom:10px;text-align:center'>七星連珠組（Pick 7）</div>"
-        + "<div style='display:flex;gap:8px;flex-wrap:wrap;justify-content:center'>" + _balls7_html + "</div>"
+        + "<span style='color:#4ECDC4;font-size:0.75rem;font-weight:700;letter-spacing:1px'>七星連珠組（Pick 7）</span></div>"
+        + "<div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px'>" + _balls7_html + "</div>"
         + _ring7_html + _badge7
-        + "</div></div>")
+        + "</div>")
     st.markdown(_html7, unsafe_allow_html=True)
 
 # 等高 JS（透過 iframe 注入到 parent）
@@ -652,21 +741,21 @@ if ml_badge:
 st.markdown("""
 <style>
 .toolbox-header {
-  background: #fff;
-  border: 1px solid #eee;
+  background: linear-gradient(135deg,#fff 0%,#f8faff 100%);
+  border: 1px solid rgba(0,0,0,0.06);
   border-bottom: none;
   border-radius: 20px 20px 0 0;
   padding: 1rem 1.4rem;
-  margin-top: 8px;
+  margin-top: 12px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 .toolbox-header::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #845EC2, #FFC75F);
+  top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #FF6B6B, #FF9671, #FFC75F, #4ECDC4, #845EC2);
 }
 .toolbox-title { display: flex; align-items: center; gap: 0.7rem; }
 .toolbox-icon { font-size: 1.3rem; }
