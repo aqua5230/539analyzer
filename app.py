@@ -287,7 +287,7 @@ div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
     .block-container { padding-left: 0.6rem !important; padding-right: 0.6rem !important; padding-top: 0 !important; }
     body, p, label { font-size: 1rem !important; }
     h4 { font-size: 1.15rem !important; }
-    div[style*="font-size:4.5rem"] { font-size: 3.2rem !important; letter-spacing: 6px !important; }
+    div[style*="font-size:7rem"] { font-size: 4rem !important; letter-spacing: 8px !important; }
 
     /* 推薦卡片 — 橫排一行，球+信心並排 */
     .rec-card {
@@ -477,7 +477,7 @@ st.markdown('''
   <div style='position:absolute;bottom:0;left:20%;width:18px;height:18px;border-radius:50%;background:rgba(132,94,194,0.1);animation:float-slow 3.5s ease-in-out infinite 0.5s'></div>
   <div style='position:absolute;top:5px;right:25%;width:12px;height:12px;border-radius:50%;background:rgba(255,199,95,0.2);animation:pulse-soft 3s ease-in-out infinite'></div>
   <!-- 主標題 -->
-  <div style='font-size:4.5rem;font-weight:900;letter-spacing:10px;text-align:center;line-height:1.1;position:relative'>
+  <div style='font-size:7rem;font-weight:900;letter-spacing:14px;text-align:center;line-height:1.1;position:relative'>
     <span style="color:#FF6B6B">今</span><span style="color:#4ECDC4">彩</span>
     <span style="color:#845EC2;margin-left:4px">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
   </div>
