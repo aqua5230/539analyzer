@@ -21,12 +21,12 @@ from markov_predict import get_markov_recommendation
 
 st.set_page_config(page_title="今彩539分析", page_icon="🎯", layout="wide")
 
-st.markdown('<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">', unsafe_allow_html=True)
+st.markdown('<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">', unsafe_allow_html=True)
 
 
 st.markdown("""
 <style>
-* { font-family: 'Noto Sans TC', 'Inter', -apple-system, sans-serif !important; }
+* { font-family: 'LXGW WenKai TC', 'Inter', -apple-system, sans-serif !important; }
 
 /* === 等高欄位 === */
 div[data-testid="stHorizontalBlock"] { align-items: stretch !important; }
@@ -455,10 +455,10 @@ def calc_hit_prob(n_select: int) -> tuple[int, float]:
 def _dark_layout(title="", height=320, **kwargs):
     """統一的 Plotly 佈局"""
     layout = dict(
-        title=dict(text=title, font=dict(size=15, color="#1d1d1f", family="Noto Sans TC")),
+        title=dict(text=title, font=dict(size=15, color="#1d1d1f", family="LXGW WenKai TC")),
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#555", family="Noto Sans TC, Inter, sans-serif"),
+        font=dict(color="#555", family="LXGW WenKai TC, Inter, sans-serif"),
         height=height,
         margin=dict(t=50, b=20, l=40, r=20),
         xaxis=dict(gridcolor="rgba(0,0,0,0.05)", zerolinecolor="rgba(0,0,0,0.08)"),
