@@ -210,7 +210,7 @@ div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
 /* === 手機 === */
 @media (max-width: 768px) {
     .block-container { padding-left: 0.6rem !important; padding-right: 0.6rem !important; padding-top: 0 !important; }
-    body, p, div, span, label { font-size: 1rem !important; }
+    body, p, label { font-size: 1rem !important; }
     h4 { font-size: 1.15rem !important; }
 
     /* 推薦卡片 — 橫排一行，球+信心並排 */
