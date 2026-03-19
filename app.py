@@ -119,7 +119,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
 [data-testid="stAppViewContainer"] { background: transparent !important; }
 [data-testid="stAppViewContainer"] > section { background: transparent !important; }
 [data-testid="stAppViewContainer"] > section > div { background: transparent !important; }
-.block-container { background: transparent !important; padding-top: 0 !important; margin-top: 0 !important; }
+.block-container { background: transparent !important; padding-top: 0 !important; margin-top: -2rem !important; }
 
 /* === 側邊欄（隱藏） === */
 [data-testid="stSidebar"] { display: none !important; }
@@ -287,6 +287,7 @@ div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
     .block-container { padding-left: 0.6rem !important; padding-right: 0.6rem !important; padding-top: 0 !important; }
     body, p, label { font-size: 1rem !important; }
     h4 { font-size: 1.15rem !important; }
+    div[style*="font-size:4.5rem"] { font-size: 3.2rem !important; letter-spacing: 6px !important; }
 
     /* 推薦卡片 — 橫排一行，球+信心並排 */
     .rec-card {
@@ -469,14 +470,14 @@ _conf5, _conf6, _conf7 = _conf(rec.top5), _conf(rec.top6), _conf(rec.top7)
 
 # ── 置中標題（帶裝飾）
 st.markdown('''
-<div style="text-align:center;padding:1rem 0 0.8rem;position:relative">
+<div style="text-align:center;padding:0 0 0.5rem;position:relative">
   <!-- 裝飾圓球 -->
   <div style='position:absolute;top:-5px;left:8%;width:40px;height:40px;border-radius:50%;background:rgba(255,107,107,0.12);animation:float-slow 4s ease-in-out infinite'></div>
   <div style='position:absolute;top:10px;right:10%;width:25px;height:25px;border-radius:50%;background:rgba(78,205,196,0.15);animation:float-slow 5s ease-in-out infinite 1s'></div>
   <div style='position:absolute;bottom:0;left:20%;width:18px;height:18px;border-radius:50%;background:rgba(132,94,194,0.1);animation:float-slow 3.5s ease-in-out infinite 0.5s'></div>
   <div style='position:absolute;top:5px;right:25%;width:12px;height:12px;border-radius:50%;background:rgba(255,199,95,0.2);animation:pulse-soft 3s ease-in-out infinite'></div>
   <!-- 主標題 -->
-  <div style='font-size:3.2rem;font-weight:900;letter-spacing:8px;text-align:center;line-height:1.2;position:relative'>
+  <div style='font-size:4.5rem;font-weight:900;letter-spacing:10px;text-align:center;line-height:1.1;position:relative'>
     <span style="color:#FF6B6B">今</span><span style="color:#4ECDC4">彩</span>
     <span style="color:#845EC2;margin-left:4px">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
   </div>
