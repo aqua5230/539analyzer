@@ -135,16 +135,19 @@ footer { display: none !important; }
 .stDeployButton { display: none !important; }
 
 /* === 文字 === */
-body, p, div, span, label { color: #333; font-size: 1rem; }
+body, p, div, span, label { color: #333; font-size: 1.1rem; }
+h1 { font-size: 2.4rem !important; }
+h2 { font-size: 2rem !important; }
+h3 { font-size: 1.6rem !important; }
 h1,h2,h3,h4,h5 { color: #1d1d1f !important; font-weight: 900 !important; letter-spacing: -0.5px; }
 h4 {
-    font-size: 1.2rem !important; margin-bottom: 0.3rem !important;
+    font-size: 1.35rem !important; margin-bottom: 0.3rem !important;
     background: rgba(255,255,255,0.7) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     border-left: 4px solid #4ECDC4 !important;
     border-radius: 12px !important;
-    padding: 0.7rem 1rem !important;
+    padding: 0.8rem 1.2rem !important;
     box-shadow: 0 2px 12px rgba(0,0,0,0.03) !important;
 }
 
@@ -155,8 +158,9 @@ h4 {
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255,255,255,0.6);
     border-radius: 16px;
-    padding: 0.8rem 1.2rem !important;
+    padding: 1rem 1.4rem !important;
     margin: 1rem 0 0.5rem !important;
+    font-size: 1.5rem !important;
     box-shadow: 0 4px 16px rgba(0,0,0,0.03);
     border-left: 4px solid #4ECDC4;
 }
@@ -175,7 +179,7 @@ hr { border: none !important; height: 1px !important; background: linear-gradien
 
 /* === Label 樣式 === */
 [data-testid="stWidgetLabel"] p {
-    color: #555 !important; font-weight: 600 !important; font-size: 0.9rem !important;
+    color: #555 !important; font-weight: 600 !important; font-size: 1.05rem !important;
 }
 
 /* === 球體動畫 === */
@@ -237,7 +241,7 @@ hr { border: none !important; height: 1px !important; background: linear-gradien
     border: 1px solid #eee;
 }
 [data-testid="stTabs"] [data-baseweb="tab"] {
-    border-radius: 10px; padding: 8px 18px; font-size: 0.82rem;
+    border-radius: 10px; padding: 10px 20px; font-size: 1rem;
     font-weight: 600; color: #888; background: transparent; border: none;
 }
 [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] {
@@ -261,8 +265,8 @@ hr { border: none !important; height: 1px !important; background: linear-gradien
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(0,0,0,0.06);
 }
-[data-testid="stMetricLabel"] { color: #888 !important; font-size: 0.7rem !important; letter-spacing: 1px; font-weight: 700 !important; }
-[data-testid="stMetricValue"] { color: #1d1d1f !important; font-size: 1.8rem !important; font-weight: 900 !important; letter-spacing: -1px; }
+[data-testid="stMetricLabel"] { color: #888 !important; font-size: 0.9rem !important; letter-spacing: 1px; font-weight: 700 !important; }
+[data-testid="stMetricValue"] { color: #1d1d1f !important; font-size: 2rem !important; font-weight: 900 !important; letter-spacing: -1px; }
 
 /* === Expander === */
 [data-testid="stExpander"] {
@@ -279,7 +283,7 @@ details > summary::-webkit-details-marker { display: none !important; }
     width: 0 !important; height: 0 !important; overflow: hidden !important; font-size: 0 !important;
 }
 [data-testid="stExpander"] summary p {
-    font-size: 0.9rem !important; color: #555 !important; font-weight: 600 !important;
+    font-size: 1.05rem !important; color: #555 !important; font-weight: 600 !important;
 }
 
 /* === DataFrame === */
@@ -336,9 +340,9 @@ details > summary::-webkit-details-marker { display: none !important; }
 }
 
 /* hr 已在上方定義 */
-[data-testid="stCaptionContainer"] { color: #999 !important; font-size: 0.78rem; }
+[data-testid="stCaptionContainer"] { color: #999 !important; font-size: 0.9rem; }
 [data-testid="stAlert"] { border-radius: 10px; border: 1px solid #eee; }
-[data-testid="stRadio"] label { color: #555 !important; font-size: 0.85rem; }
+[data-testid="stRadio"] label { color: #555 !important; font-size: 1rem; }
 
 .stMarkdown + .stMarkdown { margin-top: 0.3rem; }
 div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
@@ -353,8 +357,8 @@ div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
 /* === 手機 === */
 @media (max-width: 768px) {
     .block-container { padding-left: 0.6rem !important; padding-right: 0.6rem !important; padding-top: 0 !important; }
-    body, p, label { font-size: 1rem !important; }
-    h4 { font-size: 1.15rem !important; }
+    body, p, label { font-size: 1.05rem !important; }
+    h4 { font-size: 1.2rem !important; }
     div[style*="font-size:7rem"] { font-size: 4rem !important; letter-spacing: 8px !important; }
 
     /* 推薦卡片 — 橫排一行，球+信心並排 */
@@ -552,7 +556,7 @@ st.markdown('''
     <span style="color:#845EC2;margin-left:4px">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
   </div>
   <div style='width:60px;height:4px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2,#FFC75F);margin:10px auto 8px;border-radius:3px'></div>
-  <div style='font-size:0.85rem;font-weight:600;color:#bbb;letter-spacing:5px;text-align:center'>數據分析 · 智慧選號</div>
+  <div style='font-size:1.1rem;font-weight:600;color:#aaa;letter-spacing:6px;text-align:center'>數據分析 · 智慧選號</div>
 </div>
 ''', unsafe_allow_html=True)
 
