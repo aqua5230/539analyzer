@@ -90,7 +90,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div[data-te
 
 /* === Apple 風格背景 — 大色塊模糊 === */
 .stApp {
-    background: #f5f5f7 !important;
+    background: #eae6df !important;
     min-height: 100vh;
     position: relative;
 }
@@ -1159,108 +1159,6 @@ with tab2:
 
     st.markdown(_heat_html, unsafe_allow_html=True)
 
-    # 個別號碼趨勢圖
-    st.markdown("---")
-    st.markdown("#### 🔍 號碼探測器")
-
-    _sel_col1, _sel_col2 = st.columns([2, 1])
-    with _sel_col1:
-        selected_num = st.selectbox("選一個號碼，看它的歷史表現", [f"{n:02d}" for n in range(1, 40)], label_visibility="collapsed")
-    with _sel_col2:
-        window = st.slider("統計窗口", 10, 50, 20, key="trend_window", label_visibility="collapsed")
-
-    num_val = int(selected_num)
-    _freq = freq_map.get(num_val, 0)
-    _cyc = cycle_info.get(num_val, {})
-    _avg_gap = _cyc.get("平均間隔", "N/A")
-    _miss = _cyc.get("當前遺漏", 0)
-    _overdue = _cyc.get("已到期", False)
-    _in5 = num_val in rec.top5
-    _in7 = num_val in rec.top7
-    base_rate = 5 / 39 * 100
-
-    # 狀態判斷
-    if _in5:
-        _status_emoji = "🔥"
-        _status_text = "強力推薦"
-        _status_color = "#FF6B6B"
-        _status_bg = "rgba(255,107,107,0.1)"
-    elif _in7:
-        _status_emoji = "👍"
-        _status_text = "推薦候選"
-        _status_color = "#4ECDC4"
-        _status_bg = "rgba(78,205,196,0.1)"
-    elif _overdue:
-        _status_emoji = "💤"
-        _status_text = "久未開出"
-        _status_color = "#FF9671"
-        _status_bg = "rgba(255,150,113,0.1)"
-    else:
-        _status_emoji = "📊"
-        _status_text = "一般狀態"
-        _status_color = "#888"
-        _status_bg = "rgba(0,0,0,0.03)"
-
-    # 號碼資訊卡
-    _num_color = "#FF6B6B" if _in5 else ("#4ECDC4" if _in7 else "#845EC2")
-    st.markdown(
-        "<div style='background:rgba(255,255,255,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);"
-        "border:1px solid rgba(0,0,0,0.05);border-radius:20px;padding:1.2rem 1.5rem;margin:0.5rem 0;"
-        "display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap'>"
-        # 大球
-        "<div style='width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg," + _num_color + "," + _num_color + "cc);"
-        "display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;font-weight:900;"
-        "box-shadow:0 6px 20px " + _num_color + "40;flex-shrink:0'>" + f"{num_val:02d}" + "</div>"
-        # 資訊
-        "<div style='flex:1;min-width:200px'>"
-        "<div style='display:flex;align-items:center;gap:8px;margin-bottom:6px'>"
-        "<span style='font-size:1.4rem;font-weight:800;color:#1d1d1f'>號碼 " + f"{num_val:02d}" + "</span>"
-        "<span style='background:" + _status_bg + ";color:" + _status_color + ";padding:3px 10px;border-radius:20px;"
-        "font-size:0.8rem;font-weight:700'>" + _status_emoji + " " + _status_text + "</span>"
-        "</div>"
-        "<div style='display:flex;gap:1.5rem;flex-wrap:wrap;color:#666;font-size:0.9rem'>"
-        "<span>近期 <b style='color:#1d1d1f;font-size:1.1rem'>" + str(_freq) + "</b> 次</span>"
-        "<span>間隔 <b style='color:#1d1d1f;font-size:1.1rem'>" + str(_avg_gap) + "</b> 期</span>"
-        "<span>已遺漏 <b style='color:" + ("#FF6B6B" if _overdue else "#1d1d1f") + ";font-size:1.1rem'>" + str(_miss) + "</b> 期</span>"
-        "</div>"
-        "</div>"
-        "</div>",
-        unsafe_allow_html=True
-    )
-
-    # 趨勢圖
-    trend = []
-    for i in range(0, len(draws) - window, window):
-        chunk = draws[i:i+window]
-        cnt = sum(1 for d in chunk if num_val in d.numbers)
-        trend.append({"期段": f"{chunk[0].period[:7]}", "出現次數": cnt, "出現率": round(cnt/window*100, 1)})
-
-    if trend:
-        trend_last = trend[-30:]
-        tag_color = "#FF6B6B" if _in5 else ("#4ECDC4" if _in7 else "#845EC2")
-        fig_trend = go.Figure()
-        fig_trend.add_trace(go.Scatter(
-            x=[t["期段"] for t in trend_last],
-            y=[t["出現率"] for t in trend_last],
-            mode="lines+markers",
-            line=dict(color=tag_color, width=2.5, shape="spline"),
-            marker=dict(size=7, color="#fff", line=dict(color=tag_color, width=2)),
-            fill="tozeroy",
-            fillcolor=f"rgba{tuple(int(tag_color.lstrip('#')[i:i+2],16) for i in (0,2,4)) + (0.08,)}",
-            name="出現率%",
-        ))
-        fig_trend.add_hline(y=base_rate, line_dash="dot", line_color="#ccc", line_width=1.5,
-                            annotation_text=f"基準 {base_rate:.1f}%",
-                            annotation_font=dict(size=11, color="#999"),
-                            annotation_position="top right")
-        fig_trend.update_layout(**_dark_layout(
-            f"", height=240,
-            yaxis_title="出現率 (%)",
-            xaxis=dict(tickangle=-30),
-            showlegend=False,
-        ))
-        st.plotly_chart(fig_trend, use_container_width=True)
-
     # 配對分析
     st.markdown("---")
     st.markdown("#### 🤝 最常配對的號碼對（Top 15）")
@@ -1716,10 +1614,10 @@ with tab4:
         best_oe   = f"{oe['最常見奇數個數']}奇{5-oe['最常見奇數個數']}偶"
         fig_oe = go.Figure(go.Bar(
             x=labels_oe, y=vals_oe,
-            marker_color=["#e74c3c" if l == best_oe else "#3d6b9e" for l in labels_oe],
+            marker_color=["#FF6B6B" if l == best_oe else "#4ECDC4" for l in labels_oe],
             text=[f"{v:.1f}%" for v in vals_oe], textposition="outside",
         ))
-        fig_oe.update_layout(**_dark_layout("奇偶比分布（紅色=最常見）",
+        fig_oe.update_layout(**_dark_layout("奇偶比分布（高亮=最常見）",
             yaxis_title="出現機率 (%)", yaxis=dict(range=[0, max(vals_oe)*1.3])))
         st.plotly_chart(fig_oe, width="stretch")
         st.caption(f"👉 下一期最可能是 **{best_oe}**（歷史機率 {oe['機率']:.1%}）")
@@ -1730,10 +1628,10 @@ with tab4:
         best_bs   = f"{bs['最常見大號個數']}大{5-bs['最常見大號個數']}小"
         fig_bs = go.Figure(go.Bar(
             x=labels_bs, y=vals_bs,
-            marker_color=["#e67e22" if l == best_bs else "#3d6b9e" for l in labels_bs],
+            marker_color=["#FF6B6B" if l == best_bs else "#4ECDC4" for l in labels_bs],
             text=[f"{v:.1f}%" for v in vals_bs], textposition="outside",
         ))
-        fig_bs.update_layout(**_dark_layout("大小號比分布（橘色=最常見）",
+        fig_bs.update_layout(**_dark_layout("大小號比分布（高亮=最常見）",
             yaxis_title="出現機率 (%)", yaxis=dict(range=[0, max(vals_bs)*1.3])))
         st.plotly_chart(fig_bs, width="stretch")
         st.caption(f"👉 下一期最可能是 **{best_bs}**（歷史機率 {bs['機率']:.1%}）")
@@ -1741,51 +1639,14 @@ with tab4:
     # 和值分布
     st.markdown("---")
     sums_all = [sum(d.numbers) for d in draws]
-    fig_sum = go.Figure(go.Histogram(x=sums_all, nbinsx=40, marker_color="#27ae60", opacity=0.8))
-    fig_sum.add_vrect(x0=lo, x1=hi, fillcolor="#e74c3c", opacity=0.15,
+    fig_sum = go.Figure(go.Histogram(x=sums_all, nbinsx=40, marker_color="#845EC2", opacity=0.8))
+    fig_sum.add_vrect(x0=lo, x1=hi, fillcolor="#FF6B6B", opacity=0.1,
                       annotation_text=f"核心區間 {lo}~{hi}", annotation_position="top left")
     fig_sum.update_layout(**_dark_layout(
         f"5碼和值分布（平均={sr['平均和值']}，核心區間={lo}~{hi}）",
         height=280, xaxis_title="5碼加總", yaxis_title="出現次數"))
     st.plotly_chart(fig_sum, width="stretch")
     st.caption("👉 選號時讓5碼加總落在紅色區間內，符合歷史規律")
-
-    # 尾數分析（新）
-    st.markdown("---")
-    st.markdown("#### ⑪ 尾數分析（個位數 0~9 出現頻率）")
-    tail_data = rec.stats.get("尾數", {})
-    if tail_data:
-        tail_labels = [f"尾數{t}" for t in tail_data.keys()]
-        tail_vals   = [v*100 for v in tail_data.values()]
-        avg_tail    = 100 / 10
-        fig_tail = go.Figure(go.Bar(
-            x=tail_labels, y=tail_vals,
-            marker_color=["#e74c3c" if v > avg_tail*1.1 else "#3d6b9e" for v in tail_vals],
-            text=[f"{v:.1f}%" for v in tail_vals], textposition="outside",
-        ))
-        fig_tail.add_hline(y=avg_tail, line_dash="dash", line_color="#888",
-                           annotation_text="理論均值 10%", annotation_position="top right")
-        fig_tail.update_layout(**_dark_layout("各尾數歷史出現頻率（紅=高於均值10%）",
-            height=280, yaxis_title="出現比率 (%)"))
-        st.plotly_chart(fig_tail, width="stretch")
-        hot_tails = [f"尾數{t}" for t, v in tail_data.items() if v*100 > avg_tail*1.1]
-        st.caption(f"👉 高頻尾數：{'、'.join(hot_tails)}，對應號碼在⑪評分中加2分")
-
-    # 位置分析
-    st.markdown("---")
-    st.markdown("#### ⑧ 各位置最常見號碼（位置1=最小、位置5=最大）")
-    pos_data = rec.stats["位置"]
-    pos_rows = []
-    for pos, info in pos_data.items():
-        pos_rows.append({
-            "位置": pos,
-            "最常出現的5個號碼": "　".join(f"{n:02d}" for n in info["最常見"]),
-            "備註": "偏小號(1~15)" if pos == "位置1" else
-                    "偏小中號" if pos == "位置2" else
-                    "偏中號(15~25)" if pos == "位置3" else
-                    "偏中大號" if pos == "位置4" else "偏大號(25~39)",
-        })
-    st.dataframe(pd.DataFrame(pos_rows), width="stretch", hide_index=True)
 
     # 殺號成功率（快取）
     st.markdown("---")
@@ -1802,10 +1663,10 @@ with tab4:
     names = [r.formula_name for r in bt_results]
     fig_kl = go.Figure(go.Bar(
         x=names, y=rates,
-        marker_color=["#e74c3c" if v >= 66.4 else "#3d6b9e" for v in rates],
+        marker_color=["#FF6B6B" if v >= 66.4 else "#4ECDC4" for v in rates],
         text=[f"{v:.1f}%" for v in rates], textposition="outside",
     ))
-    fig_kl.add_hline(y=66.4, line_dash="dash", line_color="#f39c12",
+    fig_kl.add_hline(y=66.4, line_dash="dash", line_color="#999",
                      annotation_text="理論基準 66.4%", annotation_position="top right")
     fig_kl.update_layout(**_dark_layout("各公式殺號成功率（紅=超越基準）",
         yaxis_title="成功率 (%)", yaxis=dict(range=[40, max(rates)*1.2]),
