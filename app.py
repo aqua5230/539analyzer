@@ -267,6 +267,34 @@ details > summary::-webkit-details-marker { display: none !important; }
     box-shadow: 0 6px 20px rgba(78,205,196,0.4);
 }
 
+/* === Select Box === */
+[data-baseweb="select"] > div {
+    background: #f8f9fa !important; border: 1px solid #e0e0e0 !important;
+    border-radius: 10px !important; color: #333 !important;
+}
+[data-baseweb="select"] [data-baseweb="tag"] { background: #4ECDC4 !important; }
+[data-baseweb="popover"] [role="listbox"] {
+    background: #fff !important; border: 1px solid #eee !important;
+    border-radius: 10px !important; box-shadow: 0 8px 30px rgba(0,0,0,0.08) !important;
+}
+[data-baseweb="popover"] [role="option"] { color: #333 !important; }
+[data-baseweb="popover"] [role="option"][aria-selected="true"],
+[data-baseweb="popover"] [role="option"]:hover {
+    background: rgba(78,205,196,0.12) !important;
+}
+
+/* === Slider === */
+[data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
+    background: #4ECDC4 !important; border-color: #4ECDC4 !important;
+}
+[data-testid="stSlider"] div[data-testid="stThumbValue"] { color: #4ECDC4 !important; }
+[data-testid="stSlider"] [data-baseweb="slider"] > div > div:first-child {
+    background: #4ECDC4 !important;
+}
+[data-testid="stSlider"] [data-baseweb="slider"] > div > div:last-child > div {
+    background: #e0e0e0 !important;
+}
+
 hr { border-color: #f0f0f0 !important; margin: 1.2rem 0; }
 [data-testid="stCaptionContainer"] { color: #999 !important; font-size: 0.78rem; }
 [data-testid="stAlert"] { border-radius: 10px; border: 1px solid #eee; }
