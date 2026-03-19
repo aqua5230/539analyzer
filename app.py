@@ -137,7 +137,16 @@ footer { display: none !important; }
 /* === 文字 === */
 body, p, div, span, label { color: #333; font-size: 1rem; }
 h1,h2,h3,h4,h5 { color: #1d1d1f !important; font-weight: 900 !important; letter-spacing: -0.5px; }
-h4 { font-size: 1.2rem !important; margin-bottom: 0.3rem !important; }
+h4 {
+    font-size: 1.2rem !important; margin-bottom: 0.3rem !important;
+    background: rgba(255,255,255,0.7) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-left: 4px solid #4ECDC4 !important;
+    border-radius: 12px !important;
+    padding: 0.7rem 1rem !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03) !important;
+}
 
 /* === Subheader 樣式 === */
 [data-testid="stSubheader"] {
@@ -446,12 +455,14 @@ def calc_hit_prob(n_select: int) -> tuple[int, float]:
 def _dark_layout(title="", height=320, **kwargs):
     """統一的 Plotly 佈局"""
     layout = dict(
-        title=title,
-        plot_bgcolor="#ffffff",
-        paper_bgcolor="#ffffff",
-        font=dict(color="#444"),
+        title=dict(text=title, font=dict(size=15, color="#1d1d1f", family="Noto Sans TC")),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#555", family="Noto Sans TC, Inter, sans-serif"),
         height=height,
         margin=dict(t=50, b=20, l=40, r=20),
+        xaxis=dict(gridcolor="rgba(0,0,0,0.05)", zerolinecolor="rgba(0,0,0,0.08)"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0.05)", zerolinecolor="rgba(0,0,0,0.08)"),
     )
     layout.update(kwargs)
     return layout
