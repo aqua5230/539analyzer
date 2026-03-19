@@ -380,13 +380,13 @@ _conf5, _conf6, _conf7 = _conf(rec.top5), _conf(rec.top6), _conf(rec.top7)
 
 # ── 置中標題
 st.markdown('''
-<div style="text-align:center;padding:0.8rem 0 1rem;">
-  <div style='font-size:2.6rem;font-weight:900;color:#1a1a2e;letter-spacing:6px;text-align:center'>
+<div style="text-align:center;padding:1.5rem 0 1.2rem;">
+  <div style='font-size:3.6rem;font-weight:900;letter-spacing:8px;text-align:center;line-height:1.1'>
     <span style="color:#FF6B6B">今</span><span style="color:#4ECDC4">彩</span>
     <span style="color:#845EC2">5</span><span style="color:#FF9671">3</span><span style="color:#FFC75F">9</span>
   </div>
-  <div style='width:60px;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2);margin:12px auto 10px;border-radius:2px'></div>
-  <div style='font-size:0.78rem;font-weight:500;color:#aaa;letter-spacing:4px;text-align:center'>數據分析 · 智慧選號</div>
+  <div style='width:80px;height:4px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2);margin:16px auto 12px;border-radius:2px'></div>
+  <div style='font-size:0.9rem;font-weight:500;color:#aaa;letter-spacing:5px;text-align:center'>數據分析 · 智慧選號</div>
 </div>
 ''', unsafe_allow_html=True)
 
