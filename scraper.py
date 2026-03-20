@@ -114,8 +114,16 @@ def download_all(
     else:
         pages_to_fetch = list(range(1, total_pages + 1))
 
+    # 先讀現有 CSV，避免覆蓋歷史資料
     all_records: list[dict] = []
     seen_dates: set[str] = set()
+    _existing = Path(output_path)
+    if _existing.exists():
+        with open(_existing, newline="", encoding="utf-8-sig") as _f:
+            for row in csv.DictReader(_f):
+                if row["期數"] not in seen_dates:
+                    seen_dates.add(row["期數"])
+                    all_records.append(row)
 
     for idx, page in enumerate(pages_to_fetch, 1):
         records = fetch_page_old(page)
