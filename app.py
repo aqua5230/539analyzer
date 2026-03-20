@@ -1233,10 +1233,14 @@ with tab2:
         colorbar=dict(title="共現次數", thickness=12),
     ))
     fig_co.update_layout(**_dark_layout(
-        f"號碼共現次數熱力圖（近{n_recent}期）", height=520,
-        xaxis=dict(tickangle=-45, tickfont=dict(size=9)),
-        yaxis=dict(tickfont=dict(size=9), autorange="reversed"),
-        margin=dict(t=50, b=60, l=50, r=20),
+        f"號碼共現次數熱力圖（近{n_recent}期）", height=600,
+        xaxis=dict(tickangle=-45, tickfont=dict(size=10), side="bottom",
+                   tickmode="array", tickvals=list(range(39)),
+                   ticktext=[f"{n:02d}" for n in range(1, 40)]),
+        yaxis=dict(tickfont=dict(size=10), autorange="reversed",
+                   tickmode="array", tickvals=list(range(39)),
+                   ticktext=[f"{n:02d}" for n in range(1, 40)]),
+        margin=dict(t=50, b=80, l=60, r=20),
     ))
     st.plotly_chart(fig_co, width="stretch")
     st.caption("顏色越深 = 兩個號碼同期出現越頻繁，可作為選搭配號碼的參考")
