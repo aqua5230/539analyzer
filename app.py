@@ -1219,28 +1219,41 @@ with tab2:
     st.markdown("---")
     st.markdown("#### 🔲 號碼共現矩陣（當X出現時，Y最常跟著出現）")
     import itertools as _it
-    _co = [[0]*39 for _ in range(39)]
+    _full_co = [[0]*39 for _ in range(39)]
     for d in recent_draws:
         for a, b in _it.combinations(sorted(d.numbers), 2):
-            _co[a-1][b-1] += 1
-            _co[b-1][a-1] += 1
+            _full_co[a-1][b-1] += 1
+            _full_co[b-1][a-1] += 1
+
+    _co_mode = st.radio("顯示模式", ["Top10 熱門（手機推薦）", "全39號完整矩陣"],
+                        horizontal=True, key="co_mode")
+
+    if _co_mode.startswith("Top10"):
+        # 取出現頻率最高的 Top10 號碼
+        _top10 = sorted(freq_map, key=lambda x: -freq_map[x])[:10]
+        _top10.sort()
+        _co_z  = [[_full_co[a-1][b-1] for b in _top10] for a in _top10]
+        _co_lbl = [f"{n:02d}" for n in _top10]
+        _co_h   = 380
+    else:
+        _co_z   = _full_co
+        _co_lbl = [f"{n:02d}" for n in range(1, 40)]
+        _co_h   = 640
+
     fig_co = go.Figure(go.Heatmap(
-        z=_co,
-        x=[f"{n:02d}" for n in range(1, 40)],
-        y=[f"{n:02d}" for n in range(1, 40)],
+        z=_co_z,
+        x=_co_lbl,
+        y=_co_lbl,
         colorscale="Reds",
         showscale=True,
         colorbar=dict(title="共現次數", thickness=12),
+        hoverongaps=False,
     ))
     fig_co.update_layout(**_dark_layout(
-        f"號碼共現次數熱力圖（近{n_recent}期）", height=600,
-        xaxis=dict(tickangle=-45, tickfont=dict(size=10), side="bottom",
-                   tickmode="array", tickvals=list(range(39)),
-                   ticktext=[f"{n:02d}" for n in range(1, 40)]),
-        yaxis=dict(tickfont=dict(size=10), autorange="reversed",
-                   tickmode="array", tickvals=list(range(39)),
-                   ticktext=[f"{n:02d}" for n in range(1, 40)]),
-        margin=dict(t=50, b=80, l=60, r=20),
+        f"號碼共現次數熱力圖（近{n_recent}期）", height=_co_h,
+        xaxis=dict(tickangle=-45, tickfont=dict(size=10 if _co_mode.startswith("Top10") else 9)),
+        yaxis=dict(tickfont=dict(size=10 if _co_mode.startswith("Top10") else 9), autorange="reversed"),
+        margin=dict(t=50, b=90, l=55, r=20),
     ))
     st.plotly_chart(fig_co, width="stretch")
     st.caption("顏色越深 = 兩個號碼同期出現越頻繁，可作為選搭配號碼的參考")
