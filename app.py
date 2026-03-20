@@ -1835,25 +1835,83 @@ with tab4:
         st.caption("※ ML/LSTM/Markov 需先在 AI Tab 執行過才會出現")
 
 # ──────────────────────────────────────────
-# Tab5：歷史開獎紀錄
+# Tab5：歷史開獎紀錄 (RWD 卡片化)
 # ──────────────────────────────────────────
 with tab5:
     st.subheader("📅 歷史開獎紀錄")
     show_n = st.slider("顯示最近幾期", 20, min(500, len(draws)), 50, step=10)
-    hist = [{"日期": d.period,
-             "號碼1": f"{d.numbers[0]:02d}", "號碼2": f"{d.numbers[1]:02d}",
-             "號碼3": f"{d.numbers[2]:02d}", "號碼4": f"{d.numbers[3]:02d}",
-             "號碼5": f"{d.numbers[4]:02d}",
-             "和值": sum(d.numbers), "跨度": d.numbers[-1]-d.numbers[0],
-             "奇數": sum(1 for n in d.numbers if n%2==1),
-             "大號": sum(1 for n in d.numbers if n>=20)}
-            for d in reversed(draws)]
-    _show_cols = st.radio("顯示欄位", ["精簡（日期+號碼）", "完整（含統計）"],
-                          horizontal=True, key="hist_cols")
-    _hist_df = pd.DataFrame(hist[:show_n])
-    if _show_cols.startswith("精簡"):
-        _hist_df = _hist_df[["日期", "號碼1", "號碼2", "號碼3", "號碼4", "號碼5"]]
-    st.dataframe(_hist_df, width="stretch", hide_index=True)
+
+    st.markdown("""
+<style>
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin-top: 1rem;
+}
+.history-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: transform 0.2s ease;
+}
+.history-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border-color: #4ECDC4;
+}
+.hist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+.hist-period { font-weight: 800; color: #1d1d1f; font-size: 1.05rem; letter-spacing: 1px; }
+.hist-tags { display: flex; gap: 6px; }
+.hist-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+.tag-sum { background: #f0f0f0; color: #555; }
+.tag-odd { background: #FFF5F5; color: #FF6B6B; }
+.tag-big { background: #F0FAF9; color: #4ECDC4; }
+.hist-balls { display: flex; gap: 8px; justify-content: space-between; }
+.h-ball {
+    width: 2.4rem; height: 2.4rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    color: #333; border: 1px solid #dee2e6;
+}
+@media (max-width: 480px) {
+    .history-grid { grid-template-columns: 1fr; }
+    .h-ball { width: 2.2rem; height: 2.2rem; font-size: 0.95rem; }
+}
+</style>
+""", unsafe_allow_html=True)
+
+    _cards_html = "<div class='history-grid'>"
+    for d in reversed(draws[-show_n:]):
+        nums = d.numbers
+        s_sum = sum(nums)
+        s_odd = sum(1 for n in nums if n % 2 == 1)
+        s_big = sum(1 for n in nums if n >= 20)
+        balls_html = "".join([f"<div class='h-ball'>{n:02d}</div>" for n in nums])
+        _cards_html += f"""
+<div class="history-card">
+  <div class="hist-header">
+    <div class="hist-period">{d.period}</div>
+    <div class="hist-tags">
+      <span class="hist-tag tag-sum">和 {s_sum}</span>
+      <span class="hist-tag tag-odd">{s_odd}奇</span>
+      <span class="hist-tag tag-big">{s_big}大</span>
+    </div>
+  </div>
+  <div class="hist-balls">{balls_html}</div>
+</div>"""
+    _cards_html += "</div>"
+    st.markdown(_cards_html, unsafe_allow_html=True)
 
 # ──────────────────────────────────────────
 # Tab6：命中追蹤 + 步進回測
