@@ -1291,26 +1291,13 @@ with tab3:
         h = _data_hash(draws)
         cache_exists = (Path("model_cache") / f"model_{h}.pkl").exists()
 
-        col_b1, col_b2 = st.columns(2)
-        with col_b1:
-            lbl = "⚡ 載入快取（秒顯示）" if cache_exists else "🚀 執行 ML 預測（約1分鐘）"
-            run_ml = st.button(lbl, type="primary")
-        with col_b2:
-            force_retrain = st.button("🔄 強制重新訓練")
-
-        if run_ml or force_retrain:
-            use_cache = not force_retrain
-            if cache_exists and use_cache:
-                with st.spinner("載入快取..."):
+        if cache_exists:
+            if "ml_result" not in st.session_state:
+                with st.spinner("載入 ML 快取..."):
                     ml = get_ml_recommendation(draws, set(rec.killed), use_cache=True)
-            else:
-                st.warning("⚠️ 訓練中請勿切換 Tab 或重新整理，否則會中斷！", icon="⚠️")
-                prog = st.progress(0)
-                def _ml_p(c, t): prog.progress(c/t, text=f"訓練第 {c}/39 個模型...")
-                ml = get_ml_recommendation(draws, set(rec.killed), progress_cb=_ml_p, use_cache=use_cache)
-                prog.empty()
-            st.session_state["ml_result"] = ml
-            st.rerun()
+                st.session_state["ml_result"] = ml
+        else:
+            st.info("⏳ ML 模型尚未訓練。請在本機執行 `python3 train_models.py` 產生快取後重新整理。")
 
         if "ml_result" in st.session_state:
             ml = st.session_state["ml_result"]
@@ -1443,26 +1430,13 @@ with tab3:
         from dl_predict import _lstm_hash
         lstm_cache = (_P("model_cache") / f"lstm_{_lstm_hash(draws)}.pt").exists()
 
-        dl1, dl2 = st.columns(2)
-        with dl1:
-            lbl_dl = "⚡ 載入快取（秒顯示）" if lstm_cache else "🧠 執行 LSTM 訓練（約1~2分鐘）"
-            run_lstm = st.button(lbl_dl, type="primary", key="run_lstm")
-        with dl2:
-            force_lstm = st.button("🔄 強制重新訓練 LSTM", key="force_lstm")
-
-        if run_lstm or force_lstm:
-            use_lstm_cache = not force_lstm
-            if lstm_cache and use_lstm_cache:
+        if lstm_cache:
+            if "lstm_result" not in st.session_state:
                 with st.spinner("載入 LSTM 快取..."):
                     lstm = get_lstm_recommendation(draws, set(rec.killed), use_cache=True)
-            else:
-                dl_prog = st.progress(0)
-                def _dl_p(c, t): dl_prog.progress(c/t, text=f"訓練 Epoch {c}/{t}...")
-                lstm = get_lstm_recommendation(draws, set(rec.killed),
-                                               progress_cb=_dl_p, use_cache=use_lstm_cache)
-                dl_prog.empty()
-            st.session_state["lstm_result"] = lstm
-            st.rerun()
+                st.session_state["lstm_result"] = lstm
+        else:
+            st.info("⏳ LSTM 模型尚未訓練。請在本機執行 `python3 train_models.py` 產生快取後重新整理。")
 
         if "lstm_result" in st.session_state:
             lstm = st.session_state["lstm_result"]
@@ -1697,7 +1671,7 @@ with tab3:
   <div style='color:#795548;font-size:0.88rem;margin-bottom:8px'>
     需先執行：<b>{' & '.join(_missing)}</b> 預測引擎
   </div>
-  <div style='color:#aaa;font-size:0.8rem'>→ 點上方「AI」分頁 → 按「執行 ML 預測」與「執行 LSTM 訓練」</div>
+  <div style='color:#aaa;font-size:0.8rem'>→ 請先在本機執行 <code>python3 train_models.py</code>，產生模型快取後重新整理</div>
 </div>
 """, unsafe_allow_html=True)
 
