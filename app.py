@@ -792,16 +792,18 @@ st.markdown(f"""
 }}
 .trash-ball:hover .trash-tooltip {{ display: block; }}
 </style>
-<div class='trash-container'>
-  <div class='trash-header'>
+<details style='background:#fff;border:1px solid #eee;border-radius:20px;padding:0.8rem 1.4rem;
+               margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.03)'>
+  <summary style='cursor:pointer;display:flex;align-items:center;gap:0.6rem;list-style:none;
+                  -webkit-appearance:none;outline:none;user-select:none'>
     <span class='trash-icon'>✕</span>
     <span style='color:#FF6B6B;font-size:0.75rem;font-weight:700;letter-spacing:2px'>號碼排除區</span>
-    <span style='color:#bbb;font-size:0.68rem'>（懸停查看排除原因）</span>
-  </div>
-  <div class='trash-grid'>
+    <span style='color:#bbb;font-size:0.68rem;margin-left:4px'>（點擊展開，懸停查看原因）</span>
+  </summary>
+  <div class='trash-grid' style='margin-top:0.8rem'>
     {_trash_balls}
   </div>
-</div>
+</details>
 """, unsafe_allow_html=True)
 
 if ml_badge:
@@ -965,8 +967,14 @@ with tab1:
         try:
             import re
             _raw = re.split(r'[,，\s、/\-]+', custom_input.strip())
-            custom_nums = sorted([int(x) for x in _raw if x.strip()])
-            if len(custom_nums) == 5 and all(1 <= n <= 39 for n in custom_nums):
+            _all_parsed = [int(x) for x in _raw if x.strip() and x.strip().isdigit()]
+            _valid = sorted(set(n for n in _all_parsed if 1 <= n <= 39))[:5]
+            if len(_valid) < 5 and len(_all_parsed) > 0:
+                _invalid = [n for n in _all_parsed if not (1 <= n <= 39)]
+                if _invalid:
+                    st.warning(f"已自動移除無效號碼：{_invalid}（須介於 1~39）")
+            custom_nums = _valid
+            if len(custom_nums) == 5:
                 killed_set = set(rec.killed)
                 blocked = [n for n in custom_nums if n in killed_set]
                 custom_sum = sum(custom_nums)
@@ -1093,7 +1101,7 @@ with tab1:
                 if blocked:
                     st.error(f"⚠️ 號碼 {', '.join(str(n) for n in blocked)} 在殺號組內，建議替換")
             else:
-                st.error("請輸入 5 個 1~39 的號碼（空格、逗號、頓號皆可）")
+                st.error(f"需要 5 個號碼，目前有效號碼只有 {len(custom_nums)} 個，請補齊")
         except Exception:
             st.error("格式錯誤，請輸入 5 個數字（例如：5 12 19 27 34 或 5,12,19,27,34）")
 
@@ -1296,6 +1304,7 @@ with tab3:
                 with st.spinner("載入快取..."):
                     ml = get_ml_recommendation(draws, set(rec.killed), use_cache=True)
             else:
+                st.warning("⚠️ 訓練中請勿切換 Tab 或重新整理，否則會中斷！", icon="⚠️")
                 prog = st.progress(0)
                 def _ml_p(c, t): prog.progress(c/t, text=f"訓練第 {c}/39 個模型...")
                 ml = get_ml_recommendation(draws, set(rec.killed), progress_cb=_ml_p, use_cache=use_cache)
@@ -1676,6 +1685,21 @@ with tab3:
 
         # 更新頂部卡片的四方集成資訊到 session_state
         st.session_state["quad_top5"] = q_top5
+    else:
+        st.markdown("---")
+        _missing = []
+        if "ml_result" not in st.session_state: _missing.append("XGBoost ML")
+        if "lstm_result" not in st.session_state: _missing.append("LSTM")
+        st.markdown(f"""
+<div style='background:linear-gradient(135deg,#FFF8E1,#FFF3CD);border:1px solid #FFE082;
+            border-radius:16px;padding:1.4rem 1.6rem;text-align:center;margin-top:1rem'>
+  <div style='font-size:1.1rem;font-weight:700;color:#F57F17;margin-bottom:6px'>🔒 四方集成尚未解鎖</div>
+  <div style='color:#795548;font-size:0.88rem;margin-bottom:8px'>
+    需先執行：<b>{' & '.join(_missing)}</b> 預測引擎
+  </div>
+  <div style='color:#aaa;font-size:0.8rem'>→ 點上方「AI」分頁 → 按「執行 ML 預測」與「執行 LSTM 訓練」</div>
+</div>
+""", unsafe_allow_html=True)
 
 # ──────────────────────────────────────────
 # Tab4：統計指標
@@ -1824,7 +1848,12 @@ with tab5:
              "奇數": sum(1 for n in d.numbers if n%2==1),
              "大號": sum(1 for n in d.numbers if n>=20)}
             for d in reversed(draws)]
-    st.dataframe(pd.DataFrame(hist[:show_n]), width="stretch", hide_index=True)
+    _show_cols = st.radio("顯示欄位", ["精簡（日期+號碼）", "完整（含統計）"],
+                          horizontal=True, key="hist_cols")
+    _hist_df = pd.DataFrame(hist[:show_n])
+    if _show_cols.startswith("精簡"):
+        _hist_df = _hist_df[["日期", "號碼1", "號碼2", "號碼3", "號碼4", "號碼5"]]
+    st.dataframe(_hist_df, width="stretch", hide_index=True)
 
 # ──────────────────────────────────────────
 # Tab6：命中追蹤 + 步進回測
