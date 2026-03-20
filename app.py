@@ -1924,22 +1924,23 @@ with tab6:
     def load_user_picks():
         return json.loads(USER_PICKS_FILE.read_text()) if USER_PICKS_FILE.exists() else []
 
-    def save_user_pick(period, nums):
+    def save_user_pick(period, nums, bets=1):
         picks = load_user_picks()
         picks.append({
             "時間": datetime.now().strftime("%Y-%m-%d %H:%M"),
             "依據期數": period,
             "自選號碼": sorted(nums),
-            "成本": 50,
+            "注數": bets,
+            "成本": 50 * bets,
             "實際開獎": None, "命中數": None, "獎金": None
         })
         USER_PICKS_FILE.write_text(json.dumps(picks, ensure_ascii=False, indent=2))
 
-    def calc_prize(hit_count):
-        if hit_count == 5: return 8000000
-        if hit_count == 4: return 20000
-        if hit_count == 3: return 300
-        if hit_count == 2: return 50
+    def calc_prize(hit_count, bets=1):
+        if hit_count == 5: return 8000000 * bets
+        if hit_count == 4: return 20000 * bets
+        if hit_count == 3: return 300 * bets
+        if hit_count == 2: return 50 * bets
         return 0
 
     _track_mode = st.radio("檢視模式", ["🎯 系統推薦命中率", "💰 我的自選損益 (P&L)"],
@@ -1951,11 +1952,15 @@ with tab6:
         st.markdown("#### 🛒 新增自選牌組（模擬投注）")
         st.caption(f"以第 {latest.period} 期之後的開獎結果進行對獎。一注成本 $50。")
 
-        _uc1, _uc2 = st.columns([3, 1])
+        _uc1, _uc2, _uc3 = st.columns([4, 1.5, 2])
         with _uc1:
             my_pick_input = st.text_input("輸入 5 個自選號碼", placeholder="例如：7 15 22 31 38",
                                           key="my_pick_input", label_visibility="collapsed")
         with _uc2:
+            my_pick_bets = st.number_input("注數", min_value=1, max_value=100, value=1,
+                                           key="my_pick_bets", label_visibility="collapsed",
+                                           help="設定倍投注數")
+        with _uc3:
             if st.button("➕ 儲存牌組", type="primary", use_container_width=True):
                 import re as _re2
                 _raw2 = _re2.split(r'[,，\s、/\-]+', my_pick_input.strip())
@@ -1964,10 +1969,10 @@ with tab6:
                     if x.strip() and x.strip().isdigit() and 1 <= int(x) <= 39
                 ))[:5]
                 if len(_parsed2) == 5:
-                    save_user_pick(latest.period, _parsed2)
-                    st.success("已成功模擬下注！等待最新開獎結果。")
+                    save_user_pick(latest.period, _parsed2, my_pick_bets)
+                    st.success(f"成功下注 {_parsed2} 共 {my_pick_bets} 注！")
                 else:
-                    st.error(f"請輸入完整的 5 個有效號碼（1~39）。目前讀取到：{_parsed2}")
+                    st.error(f"請輸入完整的 5 個號碼。目前讀取到：{_parsed2}")
 
         user_picks = load_user_picks()
         if user_picks:
@@ -1982,7 +1987,9 @@ with tab6:
                             d = period_map_pk[p]
                             up["實際開獎"] = d.numbers
                             up["命中數"] = len(set(up["自選號碼"]) & set(d.numbers))
-                            up["獎金"] = calc_prize(up["命中數"])
+                            bets = up.get("注數", 1)
+                            up["成本"] = 50 * bets
+                            up["獎金"] = calc_prize(up["命中數"], bets)
                             _updated = True
                             break
             if _updated:
@@ -2030,9 +2037,10 @@ with tab6:
                     "下注時間": p["時間"],
                     "依據期數": p["依據期數"],
                     "自選號碼": " ".join(f"{n:02d}" for n in p["自選號碼"]),
+                    "注數": f"{p.get('注數', 1)} 注",
                     "實際開獎": " ".join(f"{n:02d}" for n in p["實際開獎"]) if p["實際開獎"] else "待開獎",
                     "命中": f"{hit_n} 碼" if hit_n is not None else "-",
-                    "成本": f"-${p['成本']}",
+                    "成本": f"-${p.get('成本', 50)}",
                     "獎金": f"+${p['獎金']:,}" if p.get("獎金") else ("-" if p["實際開獎"] else "等待中"),
                     "_hit": hit_n if hit_n is not None else -1,
                 })
