@@ -1164,6 +1164,47 @@ with tab2:
 
     st.markdown(_heat_html, unsafe_allow_html=True)
 
+    # ── 動能指標（近10期 vs 整體）──
+    short_n = min(10, len(draws))
+    short_draws = draws[-short_n:]
+    short_freq = Counter(n for d in short_draws for n in d.numbers)
+
+    rising, cooling = [], []
+    for n in range(1, 40):
+        long_rate = freq_map.get(n, 0) / n_recent
+        short_rate = short_freq.get(n, 0) / short_n
+        delta = short_rate - long_rate
+        if long_rate > 0 and delta / long_rate > 0.5:
+            rising.append((n, short_freq.get(n, 0)))
+        elif long_rate > 0 and delta / long_rate < -0.4:
+            cooling.append((n, short_freq.get(n, 0)))
+
+    rising.sort(key=lambda x: -x[1])
+    cooling.sort(key=lambda x: x[1])
+
+    _mo_html = "<div style='display:flex;gap:16px;flex-wrap:wrap;margin:0.8rem 0 0.4rem'>"
+    if rising:
+        _mo_html += ("<div style='flex:1;min-width:180px;background:rgba(255,107,107,0.08);"
+                     "border-radius:12px;padding:12px 16px'>"
+                     "<div style='color:#FF6B6B;font-size:0.82rem;font-weight:700;margin-bottom:8px'>🔥 近期升溫（近10期比長期多50%以上）</div>"
+                     "<div style='display:flex;flex-wrap:wrap;gap:6px'>")
+        for n, cnt in rising[:8]:
+            _mo_html += f"<span style='background:#FF6B6B;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem'>{n:02d}</span>"
+        _mo_html += "</div></div>"
+    if cooling:
+        _mo_html += ("<div style='flex:1;min-width:180px;background:rgba(78,205,196,0.08);"
+                     "border-radius:12px;padding:12px 16px'>"
+                     "<div style='color:#4ECDC4;font-size:0.82rem;font-weight:700;margin-bottom:8px'>❄️ 近期降溫（近10期比長期少40%以上）</div>"
+                     "<div style='display:flex;flex-wrap:wrap;gap:6px'>")
+        for n, cnt in cooling[:8]:
+            _mo_html += f"<span style='background:#4ECDC4;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem'>{n:02d}</span>"
+        _mo_html += "</div></div>"
+    if not rising and not cooling:
+        _mo_html += "<div style='color:#999;font-size:0.85rem'>近期無明顯動能變化</div>"
+    _mo_html += "</div>"
+    st.markdown(_mo_html, unsafe_allow_html=True)
+    st.caption(f"動能 = 近10期出現率 vs 近{n_recent}期平均出現率的偏差")
+
     # 配對分析
     st.markdown("---")
     st.markdown("#### 🤝 最常配對的號碼對（Top 15）")
@@ -1173,6 +1214,32 @@ with tab2:
                   "A在推薦": "✅" if a in rec.top7 else "", "B在推薦": "✅" if b in rec.top7 else ""}
                  for (a, b), cnt in pairs]
     st.dataframe(pd.DataFrame(pair_rows), width="stretch", hide_index=True)
+
+    # ── 號碼共現矩陣 ──
+    st.markdown("---")
+    st.markdown("#### 🔲 號碼共現矩陣（當X出現時，Y最常跟著出現）")
+    import itertools as _it
+    _co = [[0]*39 for _ in range(39)]
+    for d in recent_draws:
+        for a, b in _it.combinations(sorted(d.numbers), 2):
+            _co[a-1][b-1] += 1
+            _co[b-1][a-1] += 1
+    fig_co = go.Figure(go.Heatmap(
+        z=_co,
+        x=[f"{n:02d}" for n in range(1, 40)],
+        y=[f"{n:02d}" for n in range(1, 40)],
+        colorscale="Reds",
+        showscale=True,
+        colorbar=dict(title="共現次數", thickness=12),
+    ))
+    fig_co.update_layout(**_dark_layout(
+        f"號碼共現次數熱力圖（近{n_recent}期）", height=520,
+        xaxis=dict(tickangle=-45, tickfont=dict(size=9)),
+        yaxis=dict(tickfont=dict(size=9), autorange="reversed"),
+        margin=dict(t=50, b=60, l=50, r=20),
+    ))
+    st.plotly_chart(fig_co, width="stretch")
+    st.caption("顏色越深 = 兩個號碼同期出現越頻繁，可作為選搭配號碼的參考")
 
 # ──────────────────────────────────────────
 # Tab3：機器學習
@@ -1297,9 +1364,9 @@ with tab3:
             fig_prob.add_hline(y=base_rate*100, line_dash="dash", line_color="#888",
                                annotation_text=f"基準 {base_rate:.1%}", annotation_position="top right")
             fig_prob.update_layout(**_dark_layout(
-                "全39號預測機率（紅=推薦5碼 橘=推薦7碼）", height=300,
+                "全39號預測機率（紅=推薦5碼 橘=推薦7碼）", height=320,
                 yaxis_title="機率 (%)",
-                xaxis=dict(tickangle=0),
+                xaxis=dict(tickangle=-45),
             ))
             st.plotly_chart(fig_prob, width="stretch")
 
@@ -1678,6 +1745,54 @@ with tab4:
         margin=dict(t=50, b=60, l=40, r=20)))
     st.plotly_chart(fig_kl, width="stretch")
 
+    # ── 演算法 PK 擂台 ──
+    st.markdown("---")
+    st.markdown("#### 🏅 演算法 PK 擂台（各系統推薦共同號碼數）")
+    st.caption("統計各系統 Top5 推薦號碼與最近10期實際開獎的重疊度（需先跑 ML & LSTM）")
+
+    _pk_n = min(10, len(draws))
+    _pk_draws = draws[-_pk_n:]
+    _pk_actual = [set(d.numbers) for d in _pk_draws]
+
+    def _pk_score(top5_nums):
+        return sum(len(set(top5_nums) & a) for a in _pk_actual) / _pk_n
+
+    _pk_rows = []
+    _pk_stat = _pk_score(rec.top5)
+    _pk_rows.append({"演算法": "統計法", "近10期平均命中": f"{_pk_stat:.2f}", "_score": _pk_stat})
+
+    if "ml_result" in st.session_state:
+        _s = _pk_score(st.session_state["ml_result"]["top5"])
+        _pk_rows.append({"演算法": "XGBoost ML", "近10期平均命中": f"{_s:.2f}", "_score": _s})
+    if "lstm_result" in st.session_state:
+        _s = _pk_score(st.session_state["lstm_result"]["top5"])
+        _pk_rows.append({"演算法": "LSTM+Attention", "近10期平均命中": f"{_s:.2f}", "_score": _s})
+    if "markov_result" in st.session_state:
+        _s = _pk_score(st.session_state["markov_result"]["top5"])
+        _pk_rows.append({"演算法": "Markov", "近10期平均命中": f"{_s:.2f}", "_score": _s})
+    if "quad_top5" in st.session_state:
+        _s = _pk_score(st.session_state["quad_top5"])
+        _pk_rows.append({"演算法": "四方集成", "近10期平均命中": f"{_s:.2f}", "_score": _s})
+
+    if _pk_rows:
+        _pk_rows.sort(key=lambda x: -x["_score"])
+        _pk_best = _pk_rows[0]["演算法"]
+        _pk_scores = [r["_score"] for r in _pk_rows]
+        _pk_names  = [r["演算法"] for r in _pk_rows]
+        fig_pk = go.Figure(go.Bar(
+            x=_pk_names, y=_pk_scores,
+            marker_color=["#FF6B6B" if n == _pk_best else "#4ECDC4" for n in _pk_names],
+            text=[f"{v:.2f}" for v in _pk_scores], textposition="outside",
+        ))
+        fig_pk.update_layout(**_dark_layout(
+            f"近10期平均每次命中碼數（紅=本週最強）", height=280,
+            yaxis_title="平均命中碼數 / 5",
+            yaxis=dict(range=[0, max(_pk_scores)*1.4 if _pk_scores else 1]),
+        ))
+        st.plotly_chart(fig_pk, width="stretch")
+        st.success(f"🥇 本週最強演算法：**{_pk_best}**（近10期平均命中 {_pk_rows[0]['_score']:.2f} 碼）")
+        st.caption("※ ML/LSTM/Markov 需先在 AI Tab 執行過才會出現")
+
 # ──────────────────────────────────────────
 # Tab5：歷史開獎紀錄
 # ──────────────────────────────────────────
@@ -1791,6 +1906,57 @@ with tab6:
     if st.button("儲存本次推薦", type="primary", key="save_tab6"):
         save_record(latest.period, rec.top5, rec.top6, rec.top7, rec.killed)
         st.success("已儲存！")
+
+    # ── 策略篩選回測 ──
+    st.markdown("---")
+    st.markdown("#### 🎯 策略篩選回測（自訂條件 → 查看歷史命中率）")
+    st.caption("設定選號條件，系統統計過去幾期中，符合該條件的開獎機率")
+
+    with st.expander("設定策略條件", expanded=True):
+        _sc1, _sc2, _sc3 = st.columns(3)
+        _strat_odd = _sc1.selectbox("奇數個數", ["不限", "0", "1", "2", "3", "4", "5"], key="strat_odd")
+        _strat_big = _sc2.selectbox("大號個數（≥20）", ["不限", "0", "1", "2", "3", "4", "5"], key="strat_big")
+        _sum_lo, _sum_hi = st.slider("和值區間", 15, 195, (60, 120), step=5, key="strat_sum")
+        _strat_repeat = st.checkbox("必須有重號（與上期重複）", key="strat_repeat")
+        _strat_consec = st.checkbox("必須有連號", key="strat_consec")
+
+        if st.button("▶ 執行策略回測", key="strat_bt"):
+            _match, _total = 0, 0
+            for i in range(1, len(draws)):
+                d = draws[i]
+                nums = d.numbers
+                ok = True
+                if _strat_odd != "不限" and sum(1 for n in nums if n % 2 == 1) != int(_strat_odd):
+                    ok = False
+                if _strat_big != "不限" and sum(1 for n in nums if n >= 20) != int(_strat_big):
+                    ok = False
+                if not (_sum_lo <= sum(nums) <= _sum_hi):
+                    ok = False
+                if _strat_repeat and not (set(nums) & set(draws[i-1].numbers)):
+                    ok = False
+                if _strat_consec:
+                    s = sorted(nums)
+                    if not any(s[j+1]-s[j] == 1 for j in range(len(s)-1)):
+                        ok = False
+                if ok:
+                    _match += 1
+                _total += 1
+
+            _rate = _match / _total if _total else 0
+            st.session_state["strat_result"] = {"match": _match, "total": _total, "rate": _rate}
+
+    if "strat_result" in st.session_state:
+        _r = st.session_state["strat_result"]
+        _sa, _sb, _sc = st.columns(3)
+        _sa.metric("符合條件期數", f"{_r['match']} 期")
+        _sb.metric("總回測期數", f"{_r['total']} 期")
+        _sc.metric("歷史出現率", f"{_r['rate']:.1%}")
+        if _r['rate'] > 0.25:
+            st.success(f"此策略歷史出現率 {_r['rate']:.1%}，高於平均！")
+        elif _r['rate'] < 0.05:
+            st.warning(f"此策略歷史出現率 {_r['rate']:.1%}，相當罕見。")
+        else:
+            st.info(f"此策略歷史出現率 {_r['rate']:.1%}")
 
     # ── 步進回測 ──
     st.markdown("---")
