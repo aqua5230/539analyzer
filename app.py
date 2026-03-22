@@ -848,14 +848,8 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "精選", "冷熱", "AI", "數據", "圖表"
-])
-
-# ──────────────────────────────────────────
-# Tab1：推薦選號
-# ──────────────────────────────────────────
-with tab1:
+# ── 推薦評分原因（折疊）
+with st.expander("📊 查看推薦號碼評分原因"):
     st.markdown("#### — 為什麼推薦這些號碼？")
 
     # ── 每個號碼的推薦理由（視覺化卡片）──
@@ -929,191 +923,28 @@ with tab1:
 
     with st.expander("各維度說明"):
         st.markdown("""
-| 維度 | 說明 |
-|------|------|
-| 熱度 | 指數衰減加權（半衰期50期），近期資料影響力更高 |
-| 奇偶 | 歷史最常見奇偶組合，符合加2分 |
-| 大小 | 歷史最常見大小組合，符合加2分 |
-| 和值 | 5碼加總落在歷史核心區間，加3分 |
-| 重號 | 歷史重號率>50%時加分 |
-| 位置 | 每個位置最常出現的號碼加分 |
-| 配對 | 常與上一期號碼一起出現的號碼加分 |
-| 週期 | 計算每個號碼平均出現間隔，超期加分 |
-| 尾數 | 近30期高頻尾數（個位數）對應號碼加分 |
-""")
-
-    # ══ 對獎驗證 ══
-    st.markdown("""
-<div style='background:#fff;border:1px solid #eee;border-radius:16px;padding:1.8rem 1.5rem 1.2rem;margin:1rem 0;
-     box-shadow:0 2px 8px rgba(0,0,0,0.04);position:relative;overflow:hidden'>
-  <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>
-  <div style='text-align:center;margin-bottom:0.5rem'>
-    <div style='font-size:1.4rem;margin-bottom:6px'>🎰</div>
-    <div style='color:#1d1d1f;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
-    <div style='color:#999;font-size:0.95rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    st.markdown("<div style='color:#666;font-size:1rem;margin-bottom:4px'>輸入 5 個號碼（空格、逗號、頓號皆可）例如：<b>5 12 19 27 34</b></div>", unsafe_allow_html=True)
-    _vc1, _vc2 = st.columns([3, 1])
-    with _vc1:
-        custom_input = st.text_input("輸入 5 個號碼", placeholder="5 12 19 27 34",
-                                      label_visibility="collapsed", key="validator_input")
-    with _vc2:
-        verify_btn = st.button("開始驗證", type="primary", use_container_width=True)
-
-    if custom_input and verify_btn:
-        try:
-            import re
-            _raw = re.split(r'[,，\s、/\-]+', custom_input.strip())
-            _all_parsed = [int(x) for x in _raw if x.strip() and x.strip().isdigit()]
-            _valid = sorted(set(n for n in _all_parsed if 1 <= n <= 39))[:5]
-            if len(_valid) < 5 and len(_all_parsed) > 0:
-                _invalid = [n for n in _all_parsed if not (1 <= n <= 39)]
-                if _invalid:
-                    st.warning(f"已自動移除無效號碼：{_invalid}（須介於 1~39）")
-            custom_nums = _valid
-            if len(custom_nums) == 5:
-                killed_set = set(rec.killed)
-                blocked = [n for n in custom_nums if n in killed_set]
-                custom_sum = sum(custom_nums)
-                custom_odd = sum(1 for n in custom_nums if n % 2 == 1)
-                custom_big = sum(1 for n in custom_nums if n >= 20)
-                lo, hi = rec.stats["和值"]["核心區間(25-75%)"]
-                sum_ok = lo <= custom_sum <= hi
-
-                # 歷史模擬動畫（加速→減速）
-                import time
-                _slot_ph = st.empty()
-                _total_frames = 24
-                for _frame in range(_total_frames):
-                    _rand_nums = sorted(np.random.choice(range(1, 40), 5, replace=False))
-                    _progress = round((_frame + 1) / _total_frames * 100)
-                    _scan_period = round((_frame + 1) / _total_frames * len(draws))
-                    _slot_ph.markdown(f"""
-<div style='text-align:center;padding:1.2rem;background:#f8f9fa;
-            border-radius:16px;margin:0.5rem 0;border:1px solid #eee'>
-  <div style='display:flex;justify-content:center;gap:14px'>
-    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,#4ECDC4,#26A69A);align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;box-shadow:0 4px 12px rgba(78,205,196,0.3)'>{n:02d}</span>" for n in _rand_nums)}
-  </div>
-  <div style='margin-top:12px'>
-    <div style='background:#e0e0e0;border-radius:99px;height:6px;overflow:hidden;width:60%;margin:0 auto'>
-      <div style='height:100%;width:{_progress}%;background:linear-gradient(90deg,#4ECDC4,#26A69A);border-radius:99px;transition:width 0.1s'></div>
-    </div>
-    <div style='color:#4ECDC4;font-size:0.75rem;margin-top:8px;font-weight:600'>🔄 掃描第 {_scan_period} / {len(draws)} 期...</div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-                    # 加速→減速：前半快、後半慢
-                    if _frame < _total_frames // 3:
-                        time.sleep(0.05)
-                    elif _frame < _total_frames * 2 // 3:
-                        time.sleep(0.1)
-                    else:
-                        time.sleep(0.18)
-
-                # 最終結果
-                _slot_ph.markdown(f"""
-<div style='text-align:center;padding:1.2rem;background:#f8f9fa;border-radius:16px;margin:0.5rem 0;
-     border:1px solid #eee'>
-  <div style='display:flex;justify-content:center;gap:12px'>
-    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,{'#FF6B6B,#D32F2F' if n in killed_set else '#4ECDC4,#26A69A' if n in set(rec.top7) else '#90CAF9,#42A5F5'});align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1)'>{n:02d}</span>" for n in custom_nums)}
-  </div>
-  <div style='color:#999;font-size:0.7rem;margin-top:8px'>🟢 推薦號碼　🔴 排除號碼　🔵 普通號碼</div>
-</div>
-""", unsafe_allow_html=True)
-
-                # 歷史中獎率計算
-                hit3 = sum(1 for d in draws if len(set(custom_nums) & set(d.numbers)) >= 3)
-                hit4 = sum(1 for d in draws if len(set(custom_nums) & set(d.numbers)) >= 4)
-                hit5 = sum(1 for d in draws if len(set(custom_nums) & set(d.numbers)) >= 5)
-                hit3_pct = round(hit3 / len(draws) * 100, 2)
-                hit4_pct = round(hit4 / len(draws) * 100, 2)
-                hit5_pct = round(hit5 / len(draws) * 100, 2)
-
-                # 大儀表板顯示中獎率
-                if hit3_pct >= 5:
-                    _gauge_color = "#4ECDC4"
-                    _gauge_text = "🏆 歷史表現優秀！"
-                    _gauge_bg = "#f0faf9"
-                elif hit3_pct >= 3:
-                    _gauge_color = "#FF9671"
-                    _gauge_text = "⚡ 有潛力的組合"
-                    _gauge_bg = "#fff8f5"
-                elif hit3_pct >= 1:
-                    _gauge_color = "#42A5F5"
-                    _gauge_text = " 正常機率範圍"
-                    _gauge_bg = "#f5f9ff"
-                else:
-                    _gauge_color = "#845EC2"
-                    _gauge_text = "✨ 冷門組合，搏一把"
-                    _gauge_bg = "#f8f5ff"
-                _gauge_deg = min(round(hit3_pct / 10 * 360), 360)
-                # 用 CSS conic-gradient 代替 SVG
-                _ring_html = (
-                    "<div style='position:relative;width:160px;height:160px;margin:0 auto 20px'>"
-                    "<div style='width:100%;height:100%;border-radius:50%;"
-                    "background:conic-gradient(" + _gauge_color + " 0deg," + _gauge_color + " " + str(_gauge_deg) + "deg,#f0f0f0 " + str(_gauge_deg) + "deg,#f0f0f0 360deg);"
-                    "-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 14px),#000 calc(100% - 13px));"
-                    "mask:radial-gradient(farthest-side,transparent calc(100% - 14px),#000 calc(100% - 13px))'></div>"
-                    "<div style='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center'>"
-                    "<div style='font-size:2.8rem;font-weight:900;color:" + _gauge_color + ";line-height:1'>" + str(hit3_pct) + "</div>"
-                    "<div style='font-size:0.75rem;color:#999;margin-top:4px;letter-spacing:1px'>%</div>"
-                    "</div></div>"
-                )
-                # 5碼全中特效
-                _hit5_glow = "background:#fff8f0;border:1px solid #FFE0B2;box-shadow:0 4px 12px rgba(255,152,0,0.1)" if hit5 > 0 else "background:#f8f9fa;border:1px solid #eee"
-                _hit5_icon = "🎉 " if hit5 > 0 else ""
-                _result_html = (
-                    "<div style='text-align:center;margin:1rem 0;padding:2rem 1.5rem;background:" + _gauge_bg + ";"
-                    "border-radius:20px;position:relative;overflow:hidden;border:1px solid #eee'>"
-                    "  <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>"
-                    "  <div style='font-size:0.75rem;color:#999;letter-spacing:4px;margin-bottom:20px;font-weight:700'>歷 史 模 擬 中 獎 率</div>"
-                    + _ring_html +
-                    "  <div style='font-size:1rem;color:#1d1d1f;font-weight:800;letter-spacing:1px'>" + _gauge_text + "</div>"
-                    "  <div style='font-size:0.72rem;color:#999;margin-top:6px'>" + str(hit3) + " / " + str(len(draws)) + " 期命中 3 碼以上</div>"
-                    "  <div style='display:flex;justify-content:center;gap:1rem;margin-top:1.5rem'>"
-                    "    <div style='" + _hit5_glow + ";border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:" + ("#FF9671" if hit5 > 0 else "#ccc") + "'>" + _hit5_icon + str(hit5) + "</div>"
-                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>5碼全中</div>"
-                    "    </div>"
-                    "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:#1d1d1f'>" + str(hit4) + "</div>"
-                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中4碼</div>"
-                    "    </div>"
-                    "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
-                    "      <div style='font-size:1.8rem;font-weight:900;color:#1d1d1f'>" + str(hit3) + "</div>"
-                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中3碼</div>"
-                    "    </div>"
-                    "  </div>"
-                    "</div>"
-                )
-                st.markdown(_result_html, unsafe_allow_html=True)
-
-                # 四項統計指標
-                col_v1, col_v2, col_v3, col_v4 = st.columns(4)
-                col_v1.metric("和值", custom_sum, f"{'✅ 核心區間' if sum_ok else '⚠️ 偏離'}")
-                col_v2.metric("奇數", f"{custom_odd} 個", f"常見:{rec.stats['奇偶']['最常見奇數個數']}個")
-                col_v3.metric("大號", f"{custom_big} 個", f"常見:{rec.stats['大小']['最常見大號個數']}個")
-                col_v4.metric("殺號衝突", len(blocked), f"{'⚠️ '+' '.join(str(n) for n in blocked) if blocked else '✅ 無'}")
-
-                if blocked:
-                    st.error(f"⚠️ 號碼 {', '.join(str(n) for n in blocked)} 在殺號組內，建議替換")
-            else:
-                st.error(f"需要 5 個號碼，目前有效號碼只有 {len(custom_nums)} 個，請補齊")
-        except Exception:
-            st.error("格式錯誤，請輸入 5 個數字（例如：5 12 19 27 34 或 5,12,19,27,34）")
+    | 維度 | 說明 |
+    |------|------|
+    | 熱度 | 指數衰減加權（半衰期50期），近期資料影響力更高 |
+    | 奇偶 | 歷史最常見奇偶組合，符合加2分 |
+    | 大小 | 歷史最常見大小組合，符合加2分 |
+    | 和值 | 5碼加總落在歷史核心區間，加3分 |
+    | 重號 | 歷史重號率>50%時加分 |
+    | 位置 | 每個位置最常出現的號碼加分 |
+    | 配對 | 常與上一期號碼一起出現的號碼加分 |
+    | 週期 | 計算每個號碼平均出現間隔，超期加分 |
+    | 尾數 | 近30期高頻尾數（個位數）對應號碼加分 |
+    """)
 
 
-    if st.button("存起來（明天買）", key="save_tab1"):
-        save_record(latest.period, rec.top5, rec.top6, rec.top7, rec.killed)
-        st.success("已儲存！")
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "冷熱", "AI", "數據", "歷史", "對獎"
+])
 
 # ──────────────────────────────────────────
-# Tab2：熱力圖
+# Tab1：冷熱分佈
 # ──────────────────────────────────────────
-with tab2:
+with tab1:
     st.markdown("#### 號碼冷熱分佈")
     n_recent = st.slider("統計最近幾期", 50, min(500, len(draws)), 100, step=50)
     recent_draws = draws[-n_recent:]
@@ -1266,24 +1097,28 @@ with tab2:
     st.plotly_chart(fig_co, width="stretch")
     st.caption("顏色越深 = 兩個號碼同期出現越頻繁，可作為選搭配號碼的參考")
 
+    # ──────────────────────────────────────────
+    # Tab3：機器學習
+    # ──────────────────────────────────────────
+
 # ──────────────────────────────────────────
-# Tab3：機器學習
+# Tab2：AI 預測
 # ──────────────────────────────────────────
-with tab3:
+with tab2:
     st.subheader("🤖 機器學習預測（3模型投票）")
     with st.expander("運作原理"):
         st.markdown(f"""
-**訓練資料：{len(draws)} 期（近期資料加重 ×2）**
+    **訓練資料：{len(draws)} 期（近期資料加重 ×2）**
 
-| 模型 | 投票權重 | 特點 |
-|------|---------|------|
-| XGBoost | 40% | 最強，擅長找非線性規律 |
-| GradientBoosting | 35% | 穩定，抗過擬合 |
-| RandomForest | 25% | 多樹集成，降低隨機性 |
+    | 模型 | 投票權重 | 特點 |
+    |------|---------|------|
+    | XGBoost | 40% | 最強，擅長找非線性規律 |
+    | GradientBoosting | 35% | 穩定，抗過擬合 |
+    | RandomForest | 25% | 多樹集成，降低隨機性 |
 
-特徵：前5期號碼 + 遺漏期數 + 近10/30期頻率 + 奇偶 + 和值 + 跨度
-快取：訓練完自動儲存，下次秒顯示
-""")
+    特徵：前5期號碼 + 遺漏期數 + 近10/30期頻率 + 奇偶 + 和值 + 跨度
+    快取：訓練完自動儲存，下次秒顯示
+    """)
 
     if not ML_AVAILABLE:
         st.warning("請安裝：pip install scikit-learn xgboost joblib")
@@ -1411,17 +1246,17 @@ with tab3:
     st.subheader("🧠 深度學習預測（LSTM + Attention）")
     with st.expander("什麼是 LSTM + Attention？"):
         st.markdown("""
-**LSTM（長短期記憶網絡）**：能記住長期規律，比傳統ML更適合時序資料
+    **LSTM（長短期記憶網絡）**：能記住長期規律，比傳統ML更適合時序資料
 
-**Attention（注意力機制）**：Transformer 的核心技術，自動學習「哪幾期歷史最重要」
+    **Attention（注意力機制）**：Transformer 的核心技術，自動學習「哪幾期歷史最重要」
 
-| 項目 | 說明 |
-|------|------|
-| 輸入 | 前30期開獎號碼序列 |
-| 輸出 | 39個號碼各自出現機率 |
-| 訓練時間 | 約 1~2 分鐘（有快取下次秒顯示）|
-| 優勢 | 不需手動設權重，模型自己學 |
-""")
+    | 項目 | 說明 |
+    |------|------|
+    | 輸入 | 前30期開獎號碼序列 |
+    | 輸出 | 39個號碼各自出現機率 |
+    | 訓練時間 | 約 1~2 分鐘（有快取下次秒顯示）|
+    | 優勢 | 不需手動設權重，模型自己學 |
+    """)
 
     if not DL_AVAILABLE:
         st.warning("請安裝：pip install torch")
@@ -1544,17 +1379,17 @@ with tab3:
     st.subheader("🔗 Markov Chain 轉移機率預測")
     with st.expander("什麼是 Markov Chain？"):
         st.markdown("""
-**Markov Chain（馬可夫鏈）** 是一種機率模型，計算：
+    **Markov Chain（馬可夫鏈）** 是一種機率模型，計算：
 
-> 「**上期出現了 X，下期出現 Y 的機率是多少？**」
+    > 「**上期出現了 X，下期出現 Y 的機率是多少？**」
 
-| 項目 | 說明 |
-|------|------|
-| 一階轉移 | P(Y 給定 上期出現X) |
-| 多滯後加權 | lag1×60% + lag2×30% + lag3×10% |
-| 優勢 | 直接捕捉號碼間的「接續關係」，與頻率/週期完全不同的角度 |
-| 計算速度 | 即時（無需訓練）|
-""")
+    | 項目 | 說明 |
+    |------|------|
+    | 一階轉移 | P(Y 給定 上期出現X) |
+    | 多滯後加權 | lag1×60% + lag2×30% + lag3×10% |
+    | 優勢 | 直接捕捉號碼間的「接續關係」，與頻率/週期完全不同的角度 |
+    | 計算速度 | 即時（無需訓練）|
+    """)
 
     # Markov 即時計算（快取於 session_state）
     if st.session_state.get("_markov_key") != draws_key:
@@ -1665,20 +1500,24 @@ with tab3:
         if "ml_result" not in st.session_state: _missing.append("XGBoost ML")
         if "lstm_result" not in st.session_state: _missing.append("LSTM")
         st.markdown(f"""
-<div style='background:linear-gradient(135deg,#FFF8E1,#FFF3CD);border:1px solid #FFE082;
+    <div style='background:linear-gradient(135deg,#FFF8E1,#FFF3CD);border:1px solid #FFE082;
             border-radius:16px;padding:1.4rem 1.6rem;text-align:center;margin-top:1rem'>
-  <div style='font-size:1.1rem;font-weight:700;color:#F57F17;margin-bottom:6px'>🔒 四方集成尚未解鎖</div>
-  <div style='color:#795548;font-size:0.88rem;margin-bottom:8px'>
+      <div style='font-size:1.1rem;font-weight:700;color:#F57F17;margin-bottom:6px'>🔒 四方集成尚未解鎖</div>
+      <div style='color:#795548;font-size:0.88rem;margin-bottom:8px'>
     需先執行：<b>{' & '.join(_missing)}</b> 預測引擎
-  </div>
-  <div style='color:#aaa;font-size:0.8rem'>→ 請先在本機執行 <code>python3 train_models.py</code>，產生模型快取後重新整理</div>
-</div>
-""", unsafe_allow_html=True)
+      </div>
+      <div style='color:#aaa;font-size:0.8rem'>→ 請先在本機執行 <code>python3 train_models.py</code>，產生模型快取後重新整理</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ──────────────────────────────────────────
+    # Tab4：統計指標
+    # ──────────────────────────────────────────
 
 # ──────────────────────────────────────────
-# Tab4：統計指標
+# Tab3：統計數據
 # ──────────────────────────────────────────
-with tab4:
+with tab3:
     st.subheader(f"📊 統計指標（{len(draws)} 期）")
     oe = rec.stats["奇偶"]; bs = rec.stats["大小"]
     sr = rec.stats["和值"]; rp = rec.stats["重號"]; cs = rec.stats["連號"]
@@ -1808,62 +1647,66 @@ with tab4:
         st.success(f"🥇 本週最強演算法：**{_pk_best}**（近10期平均命中 {_pk_rows[0]['_score']:.2f} 碼）")
         st.caption("※ ML/LSTM/Markov 需先在 AI Tab 執行過才會出現")
 
+    # ──────────────────────────────────────────
+    # Tab5：歷史開獎紀錄 (RWD 卡片化)
+    # ──────────────────────────────────────────
+
 # ──────────────────────────────────────────
-# Tab5：歷史開獎紀錄 (RWD 卡片化)
+# Tab4：歷史開獎
 # ──────────────────────────────────────────
-with tab5:
+with tab4:
     st.subheader("📅 歷史開獎紀錄")
     show_n = st.slider("顯示最近幾期", 20, min(500, len(draws)), 50, step=10)
 
     st.markdown("""
-<style>
-.history-grid {
+    <style>
+    .history-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 12px;
     margin-top: 1rem;
-}
-.history-card {
+    }
+    .history-card {
     background: #fff;
     border: 1px solid #eee;
     border-radius: 16px;
     padding: 1rem 1.2rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     transition: transform 0.2s ease;
-}
-.history-card:hover {
+    }
+    .history-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     border-color: #4ECDC4;
-}
-.hist-header {
+    }
+    .hist-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #f0f0f0;
     padding-bottom: 8px;
     margin-bottom: 12px;
-}
-.hist-period { font-weight: 800; color: #1d1d1f; font-size: 1.05rem; letter-spacing: 1px; }
-.hist-tags { display: flex; gap: 6px; }
-.hist-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
-.tag-sum { background: #f0f0f0; color: #555; }
-.tag-odd { background: #FFF5F5; color: #FF6B6B; }
-.tag-big { background: #F0FAF9; color: #4ECDC4; }
-.hist-balls { display: flex; gap: 8px; justify-content: space-between; }
-.h-ball {
+    }
+    .hist-period { font-weight: 800; color: #1d1d1f; font-size: 1.05rem; letter-spacing: 1px; }
+    .hist-tags { display: flex; gap: 6px; }
+    .hist-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+    .tag-sum { background: #f0f0f0; color: #555; }
+    .tag-odd { background: #FFF5F5; color: #FF6B6B; }
+    .tag-big { background: #F0FAF9; color: #4ECDC4; }
+    .hist-balls { display: flex; gap: 8px; justify-content: space-between; }
+    .h-ball {
     width: 2.4rem; height: 2.4rem; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-weight: 800; font-size: 1rem;
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
     color: #333; border: 1px solid #dee2e6;
-}
-@media (max-width: 480px) {
+    }
+    @media (max-width: 480px) {
     .history-grid { grid-template-columns: 1fr; }
     .h-ball { width: 2.2rem; height: 2.2rem; font-size: 0.95rem; }
-}
-</style>
-""", unsafe_allow_html=True)
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     _cards_html = "<div class='history-grid'>"
     for d in reversed(draws[-show_n:]):
@@ -1873,18 +1716,188 @@ with tab5:
         s_big = sum(1 for n in nums if n >= 20)
         balls_html = "".join([f"<div class='h-ball'>{n:02d}</div>" for n in nums])
         _cards_html += f"""
-<div class="history-card">
-  <div class="hist-header">
+    <div class="history-card">
+      <div class="hist-header">
     <div class="hist-period">{d.period}</div>
     <div class="hist-tags">
       <span class="hist-tag tag-sum">和 {s_sum}</span>
       <span class="hist-tag tag-odd">{s_odd}奇</span>
       <span class="hist-tag tag-big">{s_big}大</span>
     </div>
-  </div>
-  <div class="hist-balls">{balls_html}</div>
-</div>"""
+      </div>
+      <div class="hist-balls">{balls_html}</div>
+    </div>"""
     _cards_html += "</div>"
     st.markdown(_cards_html, unsafe_allow_html=True)
+
+
+# ──────────────────────────────────────────
+# Tab5：對獎驗證
+# ──────────────────────────────────────────
+with tab5:
+    # ══ 對獎驗證 ══
+    st.markdown("""
+    <div style='background:#fff;border:1px solid #eee;border-radius:16px;padding:1.8rem 1.5rem 1.2rem;margin:1rem 0;
+     box-shadow:0 2px 8px rgba(0,0,0,0.04);position:relative;overflow:hidden'>
+      <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>
+      <div style='text-align:center;margin-bottom:0.5rem'>
+    <div style='font-size:1.4rem;margin-bottom:6px'>🎰</div>
+    <div style='color:#1d1d1f;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
+    <div style='color:#999;font-size:0.95rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div style='color:#666;font-size:1rem;margin-bottom:4px'>輸入 5 個號碼（空格、逗號、頓號皆可）例如：<b>5 12 19 27 34</b></div>", unsafe_allow_html=True)
+    _vc1, _vc2 = st.columns([3, 1])
+    with _vc1:
+        custom_input = st.text_input("輸入 5 個號碼", placeholder="5 12 19 27 34",
+                                      label_visibility="collapsed", key="validator_input")
+    with _vc2:
+        verify_btn = st.button("開始驗證", type="primary", use_container_width=True)
+
+    if custom_input and verify_btn:
+        try:
+            import re
+            _raw = re.split(r'[,，\s、/\-]+', custom_input.strip())
+            _all_parsed = [int(x) for x in _raw if x.strip() and x.strip().isdigit()]
+            _valid = sorted(set(n for n in _all_parsed if 1 <= n <= 39))[:5]
+            if len(_valid) < 5 and len(_all_parsed) > 0:
+                _invalid = [n for n in _all_parsed if not (1 <= n <= 39)]
+                if _invalid:
+                    st.warning(f"已自動移除無效號碼：{_invalid}（須介於 1~39）")
+            custom_nums = _valid
+            if len(custom_nums) == 5:
+                killed_set = set(rec.killed)
+                blocked = [n for n in custom_nums if n in killed_set]
+                custom_sum = sum(custom_nums)
+                custom_odd = sum(1 for n in custom_nums if n % 2 == 1)
+                custom_big = sum(1 for n in custom_nums if n >= 20)
+                lo, hi = rec.stats["和值"]["核心區間(25-75%)"]
+                sum_ok = lo <= custom_sum <= hi
+
+                # 歷史模擬動畫（加速→減速）
+                import time
+                _slot_ph = st.empty()
+                _total_frames = 24
+                for _frame in range(_total_frames):
+                    _rand_nums = sorted(np.random.choice(range(1, 40), 5, replace=False))
+                    _progress = round((_frame + 1) / _total_frames * 100)
+                    _scan_period = round((_frame + 1) / _total_frames * len(draws))
+                    _slot_ph.markdown(f"""
+    <div style='text-align:center;padding:1.2rem;background:#f8f9fa;
+            border-radius:16px;margin:0.5rem 0;border:1px solid #eee'>
+      <div style='display:flex;justify-content:center;gap:14px'>
+    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,#4ECDC4,#26A69A);align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;box-shadow:0 4px 12px rgba(78,205,196,0.3)'>{n:02d}</span>" for n in _rand_nums)}
+      </div>
+      <div style='margin-top:12px'>
+    <div style='background:#e0e0e0;border-radius:99px;height:6px;overflow:hidden;width:60%;margin:0 auto'>
+      <div style='height:100%;width:{_progress}%;background:linear-gradient(90deg,#4ECDC4,#26A69A);border-radius:99px;transition:width 0.1s'></div>
+    </div>
+    <div style='color:#4ECDC4;font-size:0.75rem;margin-top:8px;font-weight:600'>🔄 掃描第 {_scan_period} / {len(draws)} 期...</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+                    # 加速→減速：前半快、後半慢
+                    if _frame < _total_frames // 3:
+                        time.sleep(0.05)
+                    elif _frame < _total_frames * 2 // 3:
+                        time.sleep(0.1)
+                    else:
+                        time.sleep(0.18)
+
+                # 最終結果
+                _slot_ph.markdown(f"""
+    <div style='text-align:center;padding:1.2rem;background:#f8f9fa;border-radius:16px;margin:0.5rem 0;
+     border:1px solid #eee'>
+      <div style='display:flex;justify-content:center;gap:12px'>
+    {"".join(f"<span style='display:inline-flex;width:3.2rem;height:3.2rem;border-radius:50%;background:linear-gradient(135deg,{'#FF6B6B,#D32F2F' if n in killed_set else '#4ECDC4,#26A69A' if n in set(rec.top7) else '#90CAF9,#42A5F5'});align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1)'>{n:02d}</span>" for n in custom_nums)}
+      </div>
+      <div style='color:#999;font-size:0.7rem;margin-top:8px'>🟢 推薦號碼　🔴 排除號碼　🔵 普通號碼</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+                # 歷史中獎率計算
+                hit3 = sum(1 for d in draws if len(set(custom_nums) & set(d.numbers)) >= 3)
+                hit4 = sum(1 for d in draws if len(set(custom_nums) & set(d.numbers)) >= 4)
+                hit5 = sum(1 for d in draws if len(set(custom_nums) & set(d.numbers)) >= 5)
+                hit3_pct = round(hit3 / len(draws) * 100, 2)
+                hit4_pct = round(hit4 / len(draws) * 100, 2)
+                hit5_pct = round(hit5 / len(draws) * 100, 2)
+
+                # 大儀表板顯示中獎率
+                if hit3_pct >= 5:
+                    _gauge_color = "#4ECDC4"
+                    _gauge_text = "🏆 歷史表現優秀！"
+                    _gauge_bg = "#f0faf9"
+                elif hit3_pct >= 3:
+                    _gauge_color = "#FF9671"
+                    _gauge_text = "⚡ 有潛力的組合"
+                    _gauge_bg = "#fff8f5"
+                elif hit3_pct >= 1:
+                    _gauge_color = "#42A5F5"
+                    _gauge_text = " 正常機率範圍"
+                    _gauge_bg = "#f5f9ff"
+                else:
+                    _gauge_color = "#845EC2"
+                    _gauge_text = "✨ 冷門組合，搏一把"
+                    _gauge_bg = "#f8f5ff"
+                _gauge_deg = min(round(hit3_pct / 10 * 360), 360)
+                # 用 CSS conic-gradient 代替 SVG
+                _ring_html = (
+                    "<div style='position:relative;width:160px;height:160px;margin:0 auto 20px'>"
+                    "<div style='width:100%;height:100%;border-radius:50%;"
+                    "background:conic-gradient(" + _gauge_color + " 0deg," + _gauge_color + " " + str(_gauge_deg) + "deg,#f0f0f0 " + str(_gauge_deg) + "deg,#f0f0f0 360deg);"
+                    "-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 14px),#000 calc(100% - 13px));"
+                    "mask:radial-gradient(farthest-side,transparent calc(100% - 14px),#000 calc(100% - 13px))'></div>"
+                    "<div style='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center'>"
+                    "<div style='font-size:2.8rem;font-weight:900;color:" + _gauge_color + ";line-height:1'>" + str(hit3_pct) + "</div>"
+                    "<div style='font-size:0.75rem;color:#999;margin-top:4px;letter-spacing:1px'>%</div>"
+                    "</div></div>"
+                )
+                # 5碼全中特效
+                _hit5_glow = "background:#fff8f0;border:1px solid #FFE0B2;box-shadow:0 4px 12px rgba(255,152,0,0.1)" if hit5 > 0 else "background:#f8f9fa;border:1px solid #eee"
+                _hit5_icon = "🎉 " if hit5 > 0 else ""
+                _result_html = (
+                    "<div style='text-align:center;margin:1rem 0;padding:2rem 1.5rem;background:" + _gauge_bg + ";"
+                    "border-radius:20px;position:relative;overflow:hidden;border:1px solid #eee'>"
+                    "  <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>"
+                    "  <div style='font-size:0.75rem;color:#999;letter-spacing:4px;margin-bottom:20px;font-weight:700'>歷 史 模 擬 中 獎 率</div>"
+                    + _ring_html +
+                    "  <div style='font-size:1rem;color:#1d1d1f;font-weight:800;letter-spacing:1px'>" + _gauge_text + "</div>"
+                    "  <div style='font-size:0.72rem;color:#999;margin-top:6px'>" + str(hit3) + " / " + str(len(draws)) + " 期命中 3 碼以上</div>"
+                    "  <div style='display:flex;justify-content:center;gap:1rem;margin-top:1.5rem'>"
+                    "    <div style='" + _hit5_glow + ";border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:" + ("#FF9671" if hit5 > 0 else "#ccc") + "'>" + _hit5_icon + str(hit5) + "</div>"
+                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>5碼全中</div>"
+                    "    </div>"
+                    "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:#1d1d1f'>" + str(hit4) + "</div>"
+                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中4碼</div>"
+                    "    </div>"
+                    "    <div style='background:#f8f9fa;border:1px solid #eee;border-radius:14px;padding:14px 22px;min-width:80px;text-align:center'>"
+                    "      <div style='font-size:1.8rem;font-weight:900;color:#1d1d1f'>" + str(hit3) + "</div>"
+                    "      <div style='font-size:0.62rem;color:#999;margin-top:4px;letter-spacing:1px'>中3碼</div>"
+                    "    </div>"
+                    "  </div>"
+                    "</div>"
+                )
+                st.markdown(_result_html, unsafe_allow_html=True)
+
+                # 四項統計指標
+                col_v1, col_v2, col_v3, col_v4 = st.columns(4)
+                col_v1.metric("和值", custom_sum, f"{'✅ 核心區間' if sum_ok else '⚠️ 偏離'}")
+                col_v2.metric("奇數", f"{custom_odd} 個", f"常見:{rec.stats['奇偶']['最常見奇數個數']}個")
+                col_v3.metric("大號", f"{custom_big} 個", f"常見:{rec.stats['大小']['最常見大號個數']}個")
+                col_v4.metric("殺號衝突", len(blocked), f"{'⚠️ '+' '.join(str(n) for n in blocked) if blocked else '✅ 無'}")
+
+                if blocked:
+                    st.error(f"⚠️ 號碼 {', '.join(str(n) for n in blocked)} 在殺號組內，建議替換")
+            else:
+                st.error(f"需要 5 個號碼，目前有效號碼只有 {len(custom_nums)} 個，請補齊")
+        except Exception:
+            st.error("格式錯誤，請輸入 5 個數字（例如：5 12 19 27 34 或 5,12,19,27,34）")
+
+
 
 st.caption("⚠️ 彩票為隨機事件，本工具僅供統計參考，請理性投注。")
