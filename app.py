@@ -15,8 +15,6 @@ os.chdir(Path(__file__).parent)
 
 from analyzer import load_draws_from_csv, load_draws_from_string, backtest, FORMULAS, SAMPLE_DATA
 from analysis import recommend, analyze_cycle, walk_forward_backtest
-from ml_predict import get_ml_recommendation, ML_AVAILABLE, _data_hash
-from dl_predict import get_lstm_recommendation, DL_AVAILABLE
 from markov_predict import get_markov_recommendation
 
 st.set_page_config(page_title="今彩539分析", page_icon="🎯", layout="wide")
