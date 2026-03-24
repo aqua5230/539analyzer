@@ -1,0 +1,33 @@
+name: 每日更新開獎資料
+
+on:
+  schedule:
+    - cron: '30 14 * * 1-5'  # 台灣時間 22:30，週一到週五（開獎後）
+  workflow_dispatch:          # 手動觸發
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install beautifulsoup4 pandas
+
+      - name: Run scraper
+        run: python scraper.py 3
+
+      - name: Commit if updated
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add 539_history.csv
+          git diff --cached --quiet || git commit -m "自動更新開獎資料 $(date +%Y-%m-%d)"
+          git push
