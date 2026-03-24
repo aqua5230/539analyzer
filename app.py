@@ -567,9 +567,7 @@ st.markdown(f"""
 # ── 計算最高信心分數欄
 _best_conf = max(_conf5, _conf6, _conf7)
 
-_ring_counter = [0]
 def _conf_ring_html(conf, is_best=False):
-    _ring_counter[0] += 1
     if conf >= 70:
         _desc = "推薦"
         _color1 = "#4ECDC4"
@@ -905,7 +903,7 @@ with st.expander("📊 查看推薦號碼評分原因"):
         st.markdown("""
     | 維度 | 說明 |
     |------|------|
-    | 熱度 | 指數衰減加權（半衰期50期），近期資料影響力更高 |
+    | 熱度 | 近期資料影響較大，越新的開獎紀錄參考比重越高 |
     | 奇偶 | 歷史最常見奇偶組合，符合加2分 |
     | 大小 | 歷史最常見大小組合，符合加2分 |
     | 和值 | 5碼加總落在歷史核心區間，加3分 |
@@ -922,7 +920,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 # ──────────────────────────────────────────
-# Tab1：冷熱分佈
+# Tab1：趨勢選號
 # ──────────────────────────────────────────
 with tab1:
     st.markdown("#### 號碼冷熱分佈")
@@ -1035,11 +1033,11 @@ with tab1:
     st.dataframe(pd.DataFrame(pair_rows), width="stretch", hide_index=True)
 
     # ──────────────────────────────────────────
-    # Tab3：機器學習
+    # Tab2：AI智慧選號
     # ──────────────────────────────────────────
 
 # ──────────────────────────────────────────
-# Tab2：推薦
+# Tab2：AI智慧選號
 # ──────────────────────────────────────────
 with tab2:
     # ══════════════════════════════════════
@@ -1095,11 +1093,11 @@ with tab2:
 
 
     # ──────────────────────────────────────────
-    # Tab4：統計指標
+    # Tab3：尾數分析
     # ──────────────────────────────────────────
 
 # ──────────────────────────────────────────
-# Tab3：統計數據
+# Tab3：尾數分析
 # ──────────────────────────────────────────
 with tab3:
     st.subheader(f"📊 統計指標（{len(draws)} 期）")
@@ -1160,7 +1158,7 @@ with tab3:
 
     # 殺號成功率（快取）
     st.markdown("---")
-    st.markdown("#### ⚔️ 殺號公式成功率（理論基準 66.4%）")
+    st.markdown("#### ⚔️ 殺號公式成功率（長期統計基準 66.4%）")
     if st.session_state.get("_bt_key") != draws_key:
         bt_results = sorted([backtest(draws, n, fn) for n, fn in FORMULAS.items()],
                             key=lambda r: -r.success_rate)
@@ -1177,66 +1175,18 @@ with tab3:
         text=[f"{v:.1f}%" for v in rates], textposition="outside",
     ))
     fig_kl.add_hline(y=66.4, line_dash="dash", line_color="#999",
-                     annotation_text="理論基準 66.4%", annotation_position="top right")
-    fig_kl.update_layout(**_dark_layout("各公式殺號成功率（紅=超越基準）",
+                     annotation_text="長期統計基準 66.4%", annotation_position="top right")
+    fig_kl.update_layout(**_dark_layout("各公式殺號成功率（紅=高於長期統計基準）",
         yaxis_title="成功率 (%)", yaxis=dict(range=[40, max(rates)*1.2]),
         margin=dict(t=50, b=60, l=40, r=20)))
     st.plotly_chart(fig_kl, width="stretch")
 
-    # ── 演算法 PK 擂台 ──
-    st.markdown("---")
-    st.markdown("#### 🏅 演算法 PK 擂台（各系統推薦共同號碼數）")
-    st.caption("統計各系統 Top5 推薦號碼與最近10期實際開獎的重疊度（需先跑 ML & LSTM）")
-
-    _pk_n = min(10, len(draws))
-    _pk_draws = draws[-_pk_n:]
-    _pk_actual = [set(d.numbers) for d in _pk_draws]
-
-    def _pk_score(top5_nums):
-        return sum(len(set(top5_nums) & a) for a in _pk_actual) / _pk_n
-
-    _pk_rows = []
-    _pk_stat = _pk_score(rec.top5)
-    _pk_rows.append({"演算法": "統計法", "近10期平均命中": f"{_pk_stat:.2f}", "_score": _pk_stat})
-
-    if "ml_result" in st.session_state:
-        _s = _pk_score(st.session_state["ml_result"]["top5"])
-        _pk_rows.append({"演算法": "XGBoost ML", "近10期平均命中": f"{_s:.2f}", "_score": _s})
-    if "lstm_result" in st.session_state:
-        _s = _pk_score(st.session_state["lstm_result"]["top5"])
-        _pk_rows.append({"演算法": "LSTM+Attention", "近10期平均命中": f"{_s:.2f}", "_score": _s})
-    if "markov_result" in st.session_state:
-        _s = _pk_score(st.session_state["markov_result"]["top5"])
-        _pk_rows.append({"演算法": "AI智慧推薦", "近10期平均命中": f"{_s:.2f}", "_score": _s})
-    if "quad_top5" in st.session_state:
-        _s = _pk_score(st.session_state["quad_top5"])
-        _pk_rows.append({"演算法": "四方集成", "近10期平均命中": f"{_s:.2f}", "_score": _s})
-
-    if _pk_rows:
-        _pk_rows.sort(key=lambda x: -x["_score"])
-        _pk_best = _pk_rows[0]["演算法"]
-        _pk_scores = [r["_score"] for r in _pk_rows]
-        _pk_names  = [r["演算法"] for r in _pk_rows]
-        fig_pk = go.Figure(go.Bar(
-            x=_pk_names, y=_pk_scores,
-            marker_color=["#FF6B6B" if n == _pk_best else "#4ECDC4" for n in _pk_names],
-            text=[f"{v:.2f}" for v in _pk_scores], textposition="outside",
-        ))
-        fig_pk.update_layout(**_dark_layout(
-            f"近10期平均每次命中碼數（紅=本週最強）", height=280,
-            yaxis_title="平均命中碼數 / 5",
-            yaxis=dict(range=[0, max(_pk_scores)*1.4 if _pk_scores else 1]),
-        ))
-        st.plotly_chart(fig_pk, width="stretch")
-        st.success(f"🥇 本週最強演算法：**{_pk_best}**（近10期平均命中 {_pk_rows[0]['_score']:.2f} 碼）")
-        st.caption("※ 其他推薦結果需先在 AI智慧選號頁載入過才會出現")
-
     # ──────────────────────────────────────────
-    # Tab5：歷史開獎紀錄 (RWD 卡片化)
+    # Tab4：開獎紀錄
     # ──────────────────────────────────────────
 
 # ──────────────────────────────────────────
-# Tab4：歷史開獎
+# Tab4：開獎紀錄
 # ──────────────────────────────────────────
 with tab4:
     st.subheader("📅 歷史開獎紀錄")
@@ -1316,7 +1266,7 @@ with tab4:
 
 
 # ──────────────────────────────────────────
-# Tab5：對獎驗證
+# Tab5：我的對獎
 # ──────────────────────────────────────────
 with tab5:
     # ══ 對獎驗證 ══
