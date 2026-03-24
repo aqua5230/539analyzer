@@ -950,7 +950,7 @@ with st.expander("📊 查看推薦號碼評分原因"):
 
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "冷熱", "推薦", "數據", "歷史", "對獎"
+    "趨勢選號", "AI智慧選號", "尾數分析", "開獎紀錄", "我的對獎"
 ])
 
 # ──────────────────────────────────────────
@@ -1075,27 +1075,27 @@ with tab1:
 # ──────────────────────────────────────────
 with tab2:
     # ══════════════════════════════════════
-    # Markov Chain
+    # AI 智慧選號
     # ══════════════════════════════════════
     st.markdown("---")
-    st.subheader("🔗 Markov Chain 轉移機率預測")
-    with st.expander("什麼是 Markov Chain？"):
+    st.subheader("🔗 AI 智慧選號")
+    with st.expander("這組號碼怎麼選出來的？"):
         st.markdown("""
-    **Markov Chain（馬可夫鏈）** 是一種機率模型，計算：
+    系統會根據最近與長期的開獎紀錄，觀察：
 
-    > 「**上期出現了 X，下期出現 Y 的機率是多少？**」
+    > 「**上期出現過哪些號碼，下一期常跟著出現哪些號碼？**」
 
     | 項目 | 說明 |
     |------|------|
-    | 一階轉移 | P(Y 給定 上期出現X) |
-    | 多滯後加權 | lag1×60% + lag2×30% + lag3×10% |
-    | 優勢 | 直接捕捉號碼間的「接續關係」，與頻率/週期完全不同的角度 |
-    | 計算速度 | 即時（無需訓練）|
+    | 近期延續 | 看上一期與前幾期後面最常接出的號碼 |
+    | 權重分配 | 越接近最近開獎，參考比重越高 |
+    | 推薦邏輯 | 找出近期有連動跡象、又有機會補出的號碼 |
+    | 更新速度 | 開頁後會直接重新整理，不用另外等待訓練 |
     """)
 
-    # Markov 即時計算（快取於 session_state）
+    # AI 即時計算（快取於 session_state）
     if st.session_state.get("_markov_key") != draws_key:
-        with st.spinner("計算 Markov 轉移矩陣..."):
+        with st.spinner("整理近期開獎關聯中..."):
             markov = get_markov_recommendation(draws, set(rec.killed))
         st.session_state["markov_result"] = markov
         st.session_state["_markov_key"] = draws_key
@@ -1104,25 +1104,25 @@ with tab2:
 
     mc1, mc2, mc3 = st.columns(3)
     with mc1:
-        st.markdown("#### 🟤 Markov 推薦 5 碼")
+        st.markdown("#### 🟤 精選 5 碼")
         st.markdown(num_ball(markov["top5"], "#7d3c98"), unsafe_allow_html=True)
     with mc2:
-        st.markdown("#### 🟤 Markov 推薦 6 碼")
+        st.markdown("#### 🟤 精選 6 碼")
         st.markdown(num_ball(markov["top6"], "#6c3483"), unsafe_allow_html=True)
     with mc3:
-        st.markdown("#### 🟤 Markov 推薦 7 碼")
+        st.markdown("#### 🟤 精選 7 碼")
         st.markdown(num_ball(markov["top7"], "#5b2c6f"), unsafe_allow_html=True)
 
-    st.markdown("#### 📊 上期號碼 → 最可能帶出的下期號碼")
+    st.markdown("#### 📊 上期號碼帶動哪些熱門候選")
     trans_rows = []
     for x_str, nexts in markov["transition_top"].items():
         trans_rows.append({
             "上期號碼": x_str,
-            "最可能下期": "　".join(f"{y}({p:.1%})" for y, p in nexts),
+            "下期熱門候選": "　".join(f"{y}({p:.1%})" for y, p in nexts),
         })
     st.dataframe(pd.DataFrame(trans_rows), width="stretch", hide_index=True)
 
-    st.markdown("#### Markov 分數明細（前10）")
+    st.markdown("#### AI 推薦依據（前10）")
     st.dataframe(pd.DataFrame(markov["detail"]), width="stretch", hide_index=True)
 
 
@@ -1239,7 +1239,7 @@ with tab3:
         _pk_rows.append({"演算法": "LSTM+Attention", "近10期平均命中": f"{_s:.2f}", "_score": _s})
     if "markov_result" in st.session_state:
         _s = _pk_score(st.session_state["markov_result"]["top5"])
-        _pk_rows.append({"演算法": "Markov", "近10期平均命中": f"{_s:.2f}", "_score": _s})
+        _pk_rows.append({"演算法": "AI智慧推薦", "近10期平均命中": f"{_s:.2f}", "_score": _s})
     if "quad_top5" in st.session_state:
         _s = _pk_score(st.session_state["quad_top5"])
         _pk_rows.append({"演算法": "四方集成", "近10期平均命中": f"{_s:.2f}", "_score": _s})
@@ -1261,7 +1261,7 @@ with tab3:
         ))
         st.plotly_chart(fig_pk, width="stretch")
         st.success(f"🥇 本週最強演算法：**{_pk_best}**（近10期平均命中 {_pk_rows[0]['_score']:.2f} 碼）")
-        st.caption("※ ML/LSTM/Markov 需先在 AI Tab 執行過才會出現")
+        st.caption("※ 其他推薦結果需先在 AI智慧選號頁載入過才會出現")
 
     # ──────────────────────────────────────────
     # Tab5：歷史開獎紀錄 (RWD 卡片化)
@@ -1358,7 +1358,7 @@ with tab5:
       <div style='position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF6B6B,#4ECDC4,#845EC2)'></div>
       <div style='text-align:center;margin-bottom:0.5rem'>
     <div style='font-size:1.4rem;margin-bottom:6px'>🎰</div>
-    <div style='color:#1d1d1f;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>對獎驗證</div>
+    <div style='color:#1d1d1f;font-size:1.2rem;font-weight:900;letter-spacing:3px;'>我的對獎</div>
     <div style='color:#999;font-size:0.95rem;margin-top:6px;letter-spacing:1px'>輸入你的號碼 → 掃描歷史 → 算出中獎率</div>
       </div>
     </div>
