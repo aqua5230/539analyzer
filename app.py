@@ -715,6 +715,20 @@ components.html("""
 </script>
 """, height=0)
 
+# ── 儲存本期預測
+_save_key = f"saved_{latest.period}"
+if not st.session_state.get(_save_key):
+    if st.button("📌 儲存本期預測（用於命中追蹤）", use_container_width=True):
+        save_record(latest.period, rec.top5, rec.top6, rec.top7, rec.killed)
+        st.session_state[_save_key] = True
+        st.success(f"已儲存！依據期數：{latest.period}，下次開獎後自動回填命中結果。")
+        st.rerun()
+else:
+    st.markdown(
+        "<div style='text-align:center;color:#4ECDC4;font-size:0.88rem;padding:6px 0'>✅ 本期預測已儲存</div>",
+        unsafe_allow_html=True,
+    )
+
 # ── 排除號碼（互動式垃圾桶）
 killed_list = sorted(rec.killed)
 killed_reasons = {}
@@ -938,7 +952,7 @@ with st.expander("📊 查看推薦號碼評分原因"):
 
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "冷熱", "AI", "數據", "歷史", "對獎"
+    "冷熱", "推薦", "數據", "歷史", "對獎"
 ])
 
 # ──────────────────────────────────────────
@@ -1054,324 +1068,14 @@ with tab1:
                  for (a, b), cnt in pairs]
     st.dataframe(pd.DataFrame(pair_rows), width="stretch", hide_index=True)
 
-    # ── 號碼共現矩陣 ──
-    st.markdown("---")
-    st.markdown("#### 🔲 號碼共現矩陣（當X出現時，Y最常跟著出現）")
-    import itertools as _it
-    _full_co = [[0]*39 for _ in range(39)]
-    for d in recent_draws:
-        for a, b in _it.combinations(sorted(d.numbers), 2):
-            _full_co[a-1][b-1] += 1
-            _full_co[b-1][a-1] += 1
-
-    _co_mode = st.radio("顯示模式", ["Top10 熱門（手機推薦）", "全39號完整矩陣"],
-                        horizontal=True, key="co_mode")
-
-    if _co_mode.startswith("Top10"):
-        # 取出現頻率最高的 Top10 號碼
-        _top10 = sorted(freq_map, key=lambda x: -freq_map[x])[:10]
-        _top10.sort()
-        _co_z  = [[_full_co[a-1][b-1] for b in _top10] for a in _top10]
-        _co_lbl = [f"{n:02d}" for n in _top10]
-        _co_h   = 380
-    else:
-        _co_z   = _full_co
-        _co_lbl = [f"{n:02d}" for n in range(1, 40)]
-        _co_h   = 640
-
-    fig_co = go.Figure(go.Heatmap(
-        z=_co_z,
-        x=_co_lbl,
-        y=_co_lbl,
-        colorscale="Reds",
-        showscale=True,
-        colorbar=dict(title="共現次數", thickness=12),
-        hoverongaps=False,
-    ))
-    fig_co.update_layout(**_dark_layout(
-        f"號碼共現次數熱力圖（近{n_recent}期）", height=_co_h,
-        xaxis=dict(tickangle=-45, tickfont=dict(size=10 if _co_mode.startswith("Top10") else 9)),
-        yaxis=dict(tickfont=dict(size=10 if _co_mode.startswith("Top10") else 9), autorange="reversed"),
-        margin=dict(t=50, b=90, l=55, r=20),
-    ))
-    st.plotly_chart(fig_co, width="stretch")
-    st.caption("顏色越深 = 兩個號碼同期出現越頻繁，可作為選搭配號碼的參考")
-
     # ──────────────────────────────────────────
     # Tab3：機器學習
     # ──────────────────────────────────────────
 
 # ──────────────────────────────────────────
-# Tab2：AI 預測
+# Tab2：推薦
 # ──────────────────────────────────────────
 with tab2:
-    st.subheader("🤖 機器學習預測（3模型投票）")
-    with st.expander("運作原理"):
-        st.markdown(f"""
-    **訓練資料：{len(draws)} 期（近期資料加重 ×2）**
-
-    | 模型 | 投票權重 | 特點 |
-    |------|---------|------|
-    | XGBoost | 40% | 最強，擅長找非線性規律 |
-    | GradientBoosting | 35% | 穩定，抗過擬合 |
-    | RandomForest | 25% | 多樹集成，降低隨機性 |
-
-    特徵：前5期號碼 + 遺漏期數 + 近10/30期頻率 + 奇偶 + 和值 + 跨度
-    快取：訓練完自動儲存，下次秒顯示
-    """)
-
-    if not ML_AVAILABLE:
-        st.warning("請安裝：pip install scikit-learn xgboost joblib")
-    else:
-        h = _data_hash(draws)
-        cache_exists = (Path("model_cache") / f"model_{h}.pkl").exists()
-
-        if cache_exists:
-            if "ml_result" not in st.session_state:
-                with st.spinner("載入 ML 快取..."):
-                    ml = get_ml_recommendation(draws, set(rec.killed), use_cache=True)
-                st.session_state["ml_result"] = ml
-        else:
-            st.info("⏳ ML 模型尚未訓練。請在本機執行 `python3 train_models.py` 產生快取後重新整理。")
-
-        if "ml_result" in st.session_state:
-            ml = st.session_state["ml_result"]
-            src = "（快取）" if ml.get("from_cache") else "（剛訓練）"
-
-            # ── ML 獨立推薦 ──
-            mc1, mc2, mc3 = st.columns(3)
-            with mc1:
-                st.markdown("#### 🟠 ML推薦 5 碼")
-                st.markdown(num_ball(ml["top5"], "#e67e22"), unsafe_allow_html=True)
-            with mc2:
-                st.markdown("#### 🟢 ML推薦 6 碼")
-                st.markdown(num_ball(ml["top6"], "#27ae60"), unsafe_allow_html=True)
-            with mc3:
-                st.markdown("#### 🔷 ML推薦 7 碼")
-                st.markdown(num_ball(ml["top7"], "#2980b9"), unsafe_allow_html=True)
-
-            st.markdown("---")
-
-            # ── 統計 + ML 綜合推薦 ──
-            st.markdown(f"### 統計 + ML 綜合推薦 {src}")
-            st.caption("統計分數（正規化）× 50% + ML 機率（正規化）× 50%")
-
-            base_rate = 5 / 39
-            all_stat = {n: rec.score_breakdown[n]["總分"] for n in rec.score_breakdown}
-            max_s = max(all_stat.values()) or 1
-
-            combined = {}
-            for n in all_stat:
-                s_norm = all_stat[n] / max_s
-                m_norm = min(ml["all_probs"].get(n, 0) / (base_rate * 2), 1.0)
-                combined[n] = round(s_norm * 0.5 + m_norm * 0.5, 4)
-
-            comb_ranked = sorted(combined.items(), key=lambda x: -x[1])
-            comb_top5 = sorted([n for n, _ in comb_ranked[:5]])
-            comb_top6 = sorted([n for n, _ in comb_ranked[:6]])
-            comb_top7 = sorted([n for n, _ in comb_ranked[:7]])
-
-            cc1, cc2, cc3 = st.columns(3)
-            with cc1:
-                st.markdown("#### 🌟 綜合推薦 5 碼")
-                st.markdown(num_ball(comb_top5, "#f39c12"), unsafe_allow_html=True)
-            with cc2:
-                st.markdown("#### 綜合推薦 6 碼")
-                st.markdown(num_ball(comb_top6, "#d35400"), unsafe_allow_html=True)
-            with cc3:
-                st.markdown("#### 💫 綜合推薦 7 碼")
-                st.markdown(num_ball(comb_top7, "#a04000"), unsafe_allow_html=True)
-
-            # 三方共同交集
-            triple = sorted(set(rec.top5) & set(ml["top5"]) & set(comb_top5))
-            double7 = sorted(set(rec.top7) & set(ml["top7"]))
-            if triple:
-                st.success("🏆 **三方共同推薦（統計+ML+綜合 最高信心）：** " +
-                           "　".join(f"`{n:02d}`" for n in triple) + "　← 優先考慮")
-            if double7:
-                st.info("📌 **統計+ML 7碼共同推薦：** " + "　".join(f"`{n:02d}`" for n in double7))
-
-            st.markdown("---")
-
-            # ── ML 機率明細 ──
-            st.markdown("#### ML 機率明細（基準 = 12.8%）")
-            st.dataframe(pd.DataFrame(ml["detail"]), width="stretch", hide_index=True)
-
-            # ── 全39號機率 Plotly ──
-            st.markdown("#### 全39號預測機率")
-            fig_prob = go.Figure(go.Bar(
-                x=[f"{n:02d}" for n in range(1, 40)],
-                y=[ml["all_probs"].get(n, 0)*100 for n in range(1, 40)],
-                marker_color=["#e74c3c" if n in ml["top5"] else
-                              "#f39c12" if n in ml["top7"] else "#3d6b9e"
-                              for n in range(1, 40)],
-                text=[f"{ml['all_probs'].get(n,0):.1%}" if n in ml["top7"] else ""
-                      for n in range(1, 40)],
-                textposition="outside",
-            ))
-            fig_prob.add_hline(y=base_rate*100, line_dash="dash", line_color="#888",
-                               annotation_text=f"基準 {base_rate:.1%}", annotation_position="top right")
-            fig_prob.update_layout(**_dark_layout(
-                "全39號預測機率（紅=推薦5碼 橘=推薦7碼）", height=320,
-                yaxis_title="機率 (%)",
-                xaxis=dict(tickangle=-45),
-            ))
-            st.plotly_chart(fig_prob, width="stretch")
-
-            # ── 特徵重要性 ──
-            if ml.get("importance"):
-                st.markdown("---")
-                st.markdown("#### 🔍 特徵類別重要性分析")
-                imp = ml["importance"]
-                max_imp = max(imp.values())
-                fig_imp = go.Figure(go.Bar(
-                    x=list(imp.keys()),
-                    y=list(imp.values()),
-                    marker_color=["#e74c3c" if v == max_imp else "#3d6b9e" for v in imp.values()],
-                    text=[f"{v:.3f}" for v in imp.values()],
-                    textposition="outside",
-                ))
-                fig_imp.update_layout(**_dark_layout(
-                    "XGBoost 特徵類別重要性（值越高影響越大）", height=300,
-                    yaxis_title="平均重要性",
-                ))
-                st.plotly_chart(fig_imp, width="stretch")
-                most_imp = max(imp, key=imp.get)
-                st.caption(f"👉 **{most_imp}** 對模型影響最大，說明這類資訊是最強預測信號")
-
-    # ══════════════════════════════════════
-    # LSTM + Attention 深度學習
-    # ══════════════════════════════════════
-    st.markdown("---")
-    st.subheader("🧠 深度學習預測（LSTM + Attention）")
-    with st.expander("什麼是 LSTM + Attention？"):
-        st.markdown("""
-    **LSTM（長短期記憶網絡）**：能記住長期規律，比傳統ML更適合時序資料
-
-    **Attention（注意力機制）**：Transformer 的核心技術，自動學習「哪幾期歷史最重要」
-
-    | 項目 | 說明 |
-    |------|------|
-    | 輸入 | 前30期開獎號碼序列 |
-    | 輸出 | 39個號碼各自出現機率 |
-    | 訓練時間 | 約 1~2 分鐘（有快取下次秒顯示）|
-    | 優勢 | 不需手動設權重，模型自己學 |
-    """)
-
-    if not DL_AVAILABLE:
-        st.warning("請安裝：pip install torch")
-    else:
-        from pathlib import Path as _P
-        from dl_predict import _lstm_hash
-        lstm_cache = (_P("model_cache") / f"lstm_{_lstm_hash(draws)}.pt").exists()
-
-        if lstm_cache:
-            if "lstm_result" not in st.session_state:
-                with st.spinner("載入 LSTM 快取..."):
-                    lstm = get_lstm_recommendation(draws, set(rec.killed), use_cache=True)
-                st.session_state["lstm_result"] = lstm
-        else:
-            st.info("⏳ LSTM 模型尚未訓練。請在本機執行 `python3 train_models.py` 產生快取後重新整理。")
-
-        if "lstm_result" in st.session_state:
-            lstm = st.session_state["lstm_result"]
-            lstm_src = "（快取）" if lstm.get("from_cache") else "（剛訓練）"
-
-            lc1, lc2, lc3 = st.columns(3)
-            with lc1:
-                st.markdown("#### 🔵 LSTM推薦 5 碼")
-                st.markdown(num_ball(lstm["top5"], "#1abc9c"), unsafe_allow_html=True)
-            with lc2:
-                st.markdown("#### 🟦 LSTM推薦 6 碼")
-                st.markdown(num_ball(lstm["top6"], "#16a085"), unsafe_allow_html=True)
-            with lc3:
-                st.markdown("#### 💠 LSTM推薦 7 碼")
-                st.markdown(num_ball(lstm["top7"], "#0e6655"), unsafe_allow_html=True)
-
-            st.markdown(f"#### LSTM 機率明細 {lstm_src}")
-            st.dataframe(pd.DataFrame(lstm["detail"]), width="stretch", hide_index=True)
-
-            # 注意力分佈圖
-            if lstm.get("attn_display"):
-                st.markdown("#### 👁 Attention 注意力分佈（模型最關注哪幾期）")
-                attn_df = pd.DataFrame(lstm["attn_display"])
-                attn_df = attn_df.sort_values("注意力", ascending=False).head(10)
-                fig_attn = go.Figure(go.Bar(
-                    x=attn_df["期數"].tolist(),
-                    y=attn_df["注意力"].tolist(),
-                    marker_color="#1abc9c",
-                    text=attn_df["號碼"].tolist(),
-                    textposition="outside",
-                ))
-                fig_attn.update_layout(**_dark_layout(
-                    "模型最關注的前10期（數值越高代表參考權重越大）",
-                    height=300, yaxis_title="Attention Weight",
-                    xaxis=dict(tickangle=-30),
-                ))
-                st.plotly_chart(fig_attn, width="stretch")
-                st.caption("👉 注意力最高的期數，對本次預測影響最大")
-
-            # ── 三方集成（統計 + ML + LSTM）──
-            if "ml_result" in st.session_state:
-                ml_for_triple = st.session_state["ml_result"]
-                st.markdown("---")
-                st.markdown("### 🏆 三方集成推薦（統計 + ML + LSTM）")
-                st.caption("統計法 33% + ML投票 33% + LSTM 34% 加權合成")
-
-                triple_base = 5 / 39
-                all_stat_t = {n: rec.score_breakdown[n]["總分"] for n in rec.score_breakdown}
-                max_s_t = max(all_stat_t.values()) or 1
-
-                triple_combined = {}
-                for n in all_stat_t:
-                    s = all_stat_t[n] / max_s_t
-                    m = min(ml_for_triple["all_probs"].get(n, 0) / (triple_base * 2), 1.0)
-                    l = min(lstm["all_probs"].get(n, 0) / (triple_base * 2), 1.0)
-                    triple_combined[n] = round(s * 0.33 + m * 0.33 + l * 0.34, 4)
-
-                tc_ranked = sorted(triple_combined.items(), key=lambda x: -x[1])
-                tc_top5 = sorted([n for n, _ in tc_ranked[:5]])
-                tc_top6 = sorted([n for n, _ in tc_ranked[:6]])
-                tc_top7 = sorted([n for n, _ in tc_ranked[:7]])
-
-                tc1, tc2, tc3 = st.columns(3)
-                with tc1:
-                    st.markdown("#### 🥇 三方集成 5 碼")
-                    st.markdown(num_ball(tc_top5, "#c0392b"), unsafe_allow_html=True)
-                with tc2:
-                    st.markdown("#### 🥈 三方集成 6 碼")
-                    st.markdown(num_ball(tc_top6, "#8e44ad"), unsafe_allow_html=True)
-                with tc3:
-                    st.markdown("#### 🥉 三方集成 7 碼")
-                    st.markdown(num_ball(tc_top7, "#2471a3"), unsafe_allow_html=True)
-
-                # 四方交集
-                quad = sorted(set(rec.top5) & set(ml_for_triple["top5"]) & set(lstm["top5"]) & set(tc_top5))
-                tri  = sorted(set(rec.top7) & set(ml_for_triple["top7"]) & set(lstm["top7"]))
-                if quad:
-                    st.success("**四方完全一致（最高信心）：** " +
-                               "　".join(f"`{n:02d}`" for n in quad) + "　← 強烈建議選這些")
-                elif tri:
-                    st.success("✅ **三套模型7碼共同推薦：** " +
-                               "　".join(f"`{n:02d}`" for n in tri))
-
-                # 視覺化比較表
-                st.markdown("#### 各系統推薦對比")
-                compare_rows = []
-                all_candidates = sorted(set(rec.top7) | set(ml_for_triple["top7"]) | set(lstm["top7"]) | set(tc_top5))
-                for n in all_candidates:
-                    compare_rows.append({
-                        "號碼": f"{n:02d}",
-                        "統計法": "●" if n in rec.top5 else ("✓" if n in rec.top7 else ""),
-                        "ML投票": "●" if n in ml_for_triple["top5"] else ("✓" if n in ml_for_triple["top7"] else ""),
-                        "LSTM": "●" if n in lstm["top5"] else ("✓" if n in lstm["top7"] else ""),
-                        "三方集成": "🥇" if n in tc_top5 else ("✓" if n in tc_top7 else ""),
-                        "統計分": round(all_stat_t.get(n, 0), 1),
-                        "ML機率": f"{ml_for_triple['all_probs'].get(n, 0):.1%}",
-                        "LSTM機率": f"{lstm['all_probs'].get(n, 0):.1%}",
-                    })
-                st.dataframe(pd.DataFrame(compare_rows), width="stretch", hide_index=True)
-
     # ══════════════════════════════════════
     # Markov Chain
     # ══════════════════════════════════════
@@ -1423,92 +1127,6 @@ with tab2:
     st.markdown("#### Markov 分數明細（前10）")
     st.dataframe(pd.DataFrame(markov["detail"]), width="stretch", hide_index=True)
 
-    # ── 四方集成（統計 + ML + LSTM + Markov）──
-    if "ml_result" in st.session_state and "lstm_result" in st.session_state:
-        ml_q  = st.session_state["ml_result"]
-        lstm_q = st.session_state["lstm_result"]
-        st.markdown("---")
-        st.markdown("### 🏆 四方集成推薦（統計 + ML + LSTM + Markov）")
-        st.caption("統計法 25% + ML投票 25% + LSTM 25% + Markov 25%")
-
-        qb = 5 / 39
-        all_stat_q = {n: rec.score_breakdown[n]["總分"] for n in rec.score_breakdown}
-        max_sq = max(all_stat_q.values()) or 1
-        max_mk = max(markov["scores"].values()) or 1
-
-        quad = {}
-        for n in all_stat_q:
-            s = all_stat_q[n] / max_sq
-            m = min(ml_q["all_probs"].get(n, 0) / (qb * 2), 1.0)
-            l = min(lstm_q["all_probs"].get(n, 0) / (qb * 2), 1.0)
-            k = markov["scores"].get(n, 0) / max_mk
-            quad[n] = round(s * 0.25 + m * 0.25 + l * 0.25 + k * 0.25, 4)
-
-        q_ranked = sorted(quad.items(), key=lambda x: -x[1])
-        q_top5 = sorted([n for n, _ in q_ranked[:5]])
-        q_top6 = sorted([n for n, _ in q_ranked[:6]])
-        q_top7 = sorted([n for n, _ in q_ranked[:7]])
-
-        qc1, qc2, qc3 = st.columns(3)
-        with qc1:
-            st.markdown("#### 🥇 四方集成 5 碼")
-            st.markdown(num_ball(q_top5, "#c0392b"), unsafe_allow_html=True)
-        with qc2:
-            st.markdown("#### 🥈 四方集成 6 碼")
-            st.markdown(num_ball(q_top6, "#8e44ad"), unsafe_allow_html=True)
-        with qc3:
-            st.markdown("#### 🥉 四方集成 7 碼")
-            st.markdown(num_ball(q_top7, "#2471a3"), unsafe_allow_html=True)
-
-        # 四方完全一致
-        all4 = sorted(set(rec.top5) & set(ml_q["top5"]) & set(lstm_q["top5"])
-                      & set(markov["top5"]) & set(q_top5))
-        all4_7 = sorted(set(rec.top7) & set(ml_q["top7"]) & set(lstm_q["top7"])
-                        & set(markov["top7"]))
-        if all4:
-            st.success("**四方完全一致（最高信心）：** " +
-                       "　".join(f"`{n:02d}`" for n in all4) + "　← 強烈建議選這些")
-        elif all4_7:
-            st.success("✅ **四套模型7碼共同推薦：** " +
-                       "　".join(f"`{n:02d}`" for n in all4_7))
-
-        # 完整對比表
-        st.markdown("#### 各系統推薦完整對比")
-        all_cands = sorted(set(rec.top7) | set(ml_q["top7"]) | set(lstm_q["top7"])
-                           | set(markov["top7"]) | set(q_top5))
-        cmp = []
-        for n in all_cands:
-            cmp.append({
-                "號碼":     f"{n:02d}",
-                "統計法":   "●" if n in rec.top5 else ("✓" if n in rec.top7 else ""),
-                "ML投票":   "●" if n in ml_q["top5"] else ("✓" if n in ml_q["top7"] else ""),
-                "LSTM":     "●" if n in lstm_q["top5"] else ("✓" if n in lstm_q["top7"] else ""),
-                "Markov":   "●" if n in markov["top5"] else ("✓" if n in markov["top7"] else ""),
-                "四方集成": "🥇" if n in q_top5 else ("✓" if n in q_top7 else ""),
-                "統計分":   round(all_stat_q.get(n, 0), 1),
-                "ML機率":   f"{ml_q['all_probs'].get(n, 0):.1%}",
-                "LSTM機率": f"{lstm_q['all_probs'].get(n, 0):.1%}",
-                "Markov分": f"{markov['scores'].get(n, 0):.3f}",
-            })
-        st.dataframe(pd.DataFrame(cmp), width="stretch", hide_index=True)
-
-        # 更新頂部卡片的四方集成資訊到 session_state
-        st.session_state["quad_top5"] = q_top5
-    else:
-        st.markdown("---")
-        _missing = []
-        if "ml_result" not in st.session_state: _missing.append("XGBoost ML")
-        if "lstm_result" not in st.session_state: _missing.append("LSTM")
-        st.markdown(f"""
-    <div style='background:linear-gradient(135deg,#FFF8E1,#FFF3CD);border:1px solid #FFE082;
-            border-radius:16px;padding:1.4rem 1.6rem;text-align:center;margin-top:1rem'>
-      <div style='font-size:1.1rem;font-weight:700;color:#F57F17;margin-bottom:6px'>🔒 四方集成尚未解鎖</div>
-      <div style='color:#795548;font-size:0.88rem;margin-bottom:8px'>
-    需先執行：<b>{' & '.join(_missing)}</b> 預測引擎
-      </div>
-      <div style='color:#aaa;font-size:0.8rem'>→ 請先在本機執行 <code>python3 train_models.py</code>，產生模型快取後重新整理</div>
-    </div>
-    """, unsafe_allow_html=True)
 
     # ──────────────────────────────────────────
     # Tab4：統計指標
