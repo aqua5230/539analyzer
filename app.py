@@ -410,24 +410,6 @@ div[data-testid="stVerticalBlock"] > div { margin-bottom: 0.2rem; }
 </style>
 """, unsafe_allow_html=True)
 
-RECORD_FILE = Path("prediction_records.json")
-
-
-def load_records():
-    return json.loads(RECORD_FILE.read_text()) if RECORD_FILE.exists() else []
-
-
-def save_record(period, top5, top6, top7, killed):
-    records = load_records()
-    records.append({
-        "時間": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "依據期數": period, "推薦5碼": top5, "推薦6碼": top6,
-        "推薦7碼": top7, "排除號碼": killed,
-        "實際開獎": None, "5碼命中": None, "7碼命中": None,
-    })
-    RECORD_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
-
-
 _COLOR_CLASS = {
     "#c0392b": "b-r", "#8b6543": "b-r", "#e67e22": "b-r", "#f39c12": "b-r",
     "#8e44ad": "b-p", "#6b6358": "b-p", "#6c3483": "b-p", "#5b2c6f": "b-p",
@@ -712,20 +694,6 @@ components.html("""
 })();
 </script>
 """, height=0)
-
-# ── 儲存本期預測
-_save_key = f"saved_{latest.period}"
-if not st.session_state.get(_save_key):
-    if st.button("📌 儲存本期預測（用於命中追蹤）", use_container_width=True):
-        save_record(latest.period, rec.top5, rec.top6, rec.top7, rec.killed)
-        st.session_state[_save_key] = True
-        st.success(f"已儲存！依據期數：{latest.period}，下次開獎後自動回填命中結果。")
-        st.rerun()
-else:
-    st.markdown(
-        "<div style='text-align:center;color:#4ECDC4;font-size:0.88rem;padding:6px 0'>✅ 本期預測已儲存</div>",
-        unsafe_allow_html=True,
-    )
 
 # ── 排除號碼（互動式垃圾桶）
 killed_list = sorted(rec.killed)
